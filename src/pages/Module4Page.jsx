@@ -4,10 +4,16 @@ import { ConceptCard } from '../components/Cards';
 import { AnalogyBox, TipBox, WarnBox } from '../components/Callouts';
 import CodeBlock from '../components/CodeBlock';
 import Checklist from '../components/Checklist';
+import SEO from '../components/SEO';
 
 export default function Module4Page() {
   return (
     <>
+      <SEO 
+        title="Module 4: Expert Level" 
+        path="/module/4" 
+        description="Become a PL/SQL Expert. Master collections, bulk operations (BULK COLLECT, FORALL), dynamic SQL, and advanced performance tuning."
+      />
       <div className="mb-6">
         <Link to="/module/3" className="text-muted text-sm hover:text-accent transition-colors">← Module 3: Advanced PL/SQL</Link>
       </div>

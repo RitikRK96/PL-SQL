@@ -1,14 +1,21 @@
 import { Link } from 'react-router-dom';
 import SectionHeader from '../components/SectionHeader';
 import { ConceptCard } from '../components/Cards';
-import { AnalogyBox, TipBox } from '../components/Callouts';
+import { AnalogyBox, TipBox, WarnBox } from '../components/Callouts';
 import CodeBlock from '../components/CodeBlock';
 import Checklist from '../components/Checklist';
 import PracticeSection from '../components/PracticeSection';
+import InterviewCard from '../components/InterviewCard';
+import SEO from '../components/SEO';
 
 export default function Module2Page() {
   return (
     <>
+      <SEO 
+        title="Module 2: PL/SQL Foundations" 
+        path="/module/2" 
+        description="Master the building blocks of PL/SQL: anonymous blocks, variables, control flow, loops, and conditional logic."
+      />
       <div className="mb-6">
         <Link to="/module/1" className="text-muted text-sm hover:text-accent transition-colors">← Module 1: SQL Basics</Link>
       </div>

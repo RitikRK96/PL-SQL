@@ -3,10 +3,16 @@ import SectionHeader from '../components/SectionHeader';
 import { ConceptCard } from '../components/Cards';
 import InterviewCard from '../components/InterviewCard';
 import Checklist from '../components/Checklist';
+import SEO from '../components/SEO';
 
 export default function InterviewPage() {
   return (
     <>
+      <SEO 
+        title="Top 20 Interview Questions" 
+        path="/interview" 
+        description="The top 20 most frequently asked Oracle SQL and PL/SQL interview questions, explained with clear answers to help you get hired."
+      />
       <div className="mb-6">
         <Link to="/module/4" className="text-muted text-sm hover:text-accent transition-colors">← Module 4: Expert Level</Link>
       </div>

@@ -6,10 +6,16 @@ import CodeBlock from '../components/CodeBlock';
 import Checklist from '../components/Checklist';
 import PracticeSection from '../components/PracticeSection';
 import InterviewCard from '../components/InterviewCard';
+import SEO from '../components/SEO';
 
 export default function Module3Page() {
   return (
     <>
+      <SEO 
+        title="Module 3: Advanced PL/SQL" 
+        path="/module/3" 
+        description="Advance your PL/SQL skills with explicit cursors, exception handling, stored procedures, functions, triggers, and packages."
+      />
       <div className="mb-6">
         <Link to="/module/2" className="text-muted text-sm hover:text-accent transition-colors">← Module 2: PL/SQL Foundations</Link>
       </div>

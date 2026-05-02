@@ -4,10 +4,16 @@ import { Chip } from '../components/Cards';
 import { TipBox } from '../components/Callouts';
 import CodeBlock from '../components/CodeBlock';
 import Checklist from '../components/Checklist';
+import SEO from '../components/SEO';
 
 export default function ProjectPage() {
   return (
     <>
+      <SEO 
+        title="Final Capstone Project" 
+        path="/project" 
+        description="Apply your PL/SQL knowledge to build a real-world Banking Transaction Management System. Database design, packages, triggers, and more."
+      />
       <div className="mb-6">
         <Link to="/interview" className="text-muted text-sm hover:text-accent transition-colors">← Interview Prep</Link>
       </div>

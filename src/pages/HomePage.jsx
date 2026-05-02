@@ -2,10 +2,16 @@ import { Link } from 'react-router-dom';
 import { ConceptCard, Chip } from '../components/Cards';
 import Checklist from '../components/Checklist';
 import SectionHeader from '../components/SectionHeader';
+import SEO from '../components/SEO';
 
 export default function HomePage() {
   return (
     <>
+      <SEO 
+        title="Zero to Job-Ready" 
+        path="/" 
+        description="A complete PL/SQL Masterclass covering SQL fundamentals, cursors, packages, performance tuning, and an interview guide."
+      />
       {/* HERO */}
       <div className="pb-10 border-b border-border mb-12">
         <div className="inline-block font-mono text-[0.7rem] text-accent2 border border-accent2 px-2.5 py-0.5 rounded-full mb-4 tracking-wide">

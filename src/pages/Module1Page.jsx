@@ -6,10 +6,16 @@ import CodeBlock from '../components/CodeBlock';
 import Checklist from '../components/Checklist';
 import PracticeSection from '../components/PracticeSection';
 import InterviewCard from '../components/InterviewCard';
+import SEO from '../components/SEO';
 
 export default function Module1Page() {
   return (
     <>
+      <SEO 
+        title="Module 1: SQL Basics" 
+        path="/module/1" 
+        description="Learn core SQL fundamentals: DDL, DML, aggregations, and JOINs. The foundation for every PL/SQL developer."
+      />
       <div className="mb-6">
         <Link to="/" className="text-muted text-sm hover:text-accent transition-colors">← Back to Overview</Link>
       </div>
