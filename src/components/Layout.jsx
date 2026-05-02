@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
@@ -8,16 +8,14 @@ export default function Layout() {
   const location = useLocation();
 
   // Scroll to top on route change, or to hash
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (location.hash) {
-      setTimeout(() => {
-        const el = document.getElementById(location.hash.slice(1));
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
+      const el = document.getElementById(location.hash.slice(1));
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [location]);
+  }, [location.pathname, location.hash]);
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 400);

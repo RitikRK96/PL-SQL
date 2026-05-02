@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { useEffect, useLayoutEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useProgress } from '../context/ProgressContext';
 
 const NAV_SECTIONS = [
@@ -28,6 +28,7 @@ const NAV_SECTIONS = [
       { to: '/module/2', label: '2.3 Variables & Types', hash: 'variables' },
       { to: '/module/2', label: '2.4 Control Structures', hash: 'control' },
       { to: '/module/2', label: '2.5 Loops', hash: 'loops' },
+      { to: '/module/2', label: '2.6 Intro to Cursors', hash: 'cursors-intro' },
     ],
   },
   {
@@ -59,26 +60,58 @@ const NAV_SECTIONS = [
   },
 ];
 
-// Count total checkboxes from IDs we know exist
-const ALL_CHECKBOX_IDS_COUNT = 85;
-
 export default function Sidebar() {
-  const { totalChecked } = useProgress();
+  const { totalChecked, totalAvailable } = useProgress();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const pct = Math.round((totalChecked / ALL_CHECKBOX_IDS_COUNT) * 100);
+  const [activeHash, setActiveHash] = useState(location.hash);
+  const pct = Math.round((totalChecked / totalAvailable) * 100) || 0;
 
   // Close sidebar on navigation (mobile)
   useEffect(() => {
     setMobileOpen(false);
+    // When URL explicitly changes (via clicking link), set that as active
+    if (location.hash) setActiveHash(location.hash);
   }, [location]);
+
+  // Track scroll position to update active hash dynamically
+  useLayoutEffect(() => {
+    const sectionIds = NAV_SECTIONS
+      .flatMap(sec => sec.items)
+      .filter(item => item.to === location.pathname && item.hash)
+      .map(item => item.hash);
+
+    if (sectionIds.length === 0) {
+      setActiveHash('');
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Find the intersection that is currently on screen
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveHash(`#${entry.target.id}`);
+          }
+        });
+      },
+      { rootMargin: '-10% 0px -70% 0px', threshold: 0 } // Threshold must be 0 for tall elements with small root margins
+    );
+
+    sectionIds.forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) observer.observe(element);
+    });
+
+    return () => observer.disconnect();
+  }, [location.pathname]);
 
   return (
     <>
       {/* Mobile menu toggle */}
       <button
         id="menu-toggle"
-        className="hidden fixed top-4 left-4 z-200 bg-surface border border-border rounded-md px-3 py-2 cursor-pointer text-text-main text-[0.9rem]"
+        className="md:hidden fixed top-4 left-4 z-200 bg-surface border border-border rounded-md px-3 py-2 cursor-pointer text-text-main text-[0.9rem]"
         onClick={() => setMobileOpen(!mobileOpen)}
       >
         ☰
@@ -111,19 +144,32 @@ export default function Sidebar() {
             <div className="px-5 text-[0.65rem] font-mono text-muted uppercase tracking-widest py-1">
               {section.group}
             </div>
-            {section.items.map((item, idx) => (
-              <NavLink
-                key={idx}
-                to={item.hash ? `${item.to}#${item.hash}` : item.to}
-                className={({ isActive }) =>
-                  `nav-item ${isActive && !item.hash ? 'active' : ''} ${location.pathname === item.to ? (item.hash ? '' : 'active') : ''}`
+            {section.items.map((item, idx) => {
+              const toPath = item.hash ? `${item.to}#${item.hash}` : item.to;
+              const isPathMatch = location.pathname === item.to;
+              const isHashMatch = activeHash === `#${item.hash}`;
+              
+              let isHighlighted = false;
+              if (isPathMatch) {
+                if (item.hash) {
+                  isHighlighted = isHashMatch || (!activeHash && idx === 0);
+                } else {
+                  isHighlighted = true;
                 }
-                onClick={() => setMobileOpen(false)}
-              >
-                <span className="dot" />
-                {item.label}
-              </NavLink>
-            ))}
+              }
+
+              return (
+                <Link
+                  key={idx}
+                  to={toPath}
+                  className={`nav-item ${isHighlighted ? 'active' : ''}`}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <span className="dot" />
+                  {item.label}
+                </Link>
+              );
+            })}
           </div>
         ))}
       </nav>

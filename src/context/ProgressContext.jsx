@@ -34,9 +34,21 @@ export function ProgressProvider({ children }) {
   const isChecked = useCallback((id) => !!checked[id], [checked]);
 
   const totalChecked = Object.values(checked).filter(Boolean).length;
+  // Store the total available checkboxes here so it's not hardcoded in UI components.
+  // This can later be made dynamic by exposing a registerCheckboxes function if needed.
+  const [totalAvailable, setTotalAvailable] = useState(85);
 
   return (
-    <ProgressContext.Provider value={{ checked, toggle, isChecked, totalChecked, userName, setUserName }}>
+    <ProgressContext.Provider value={{ 
+      checked, 
+      toggle, 
+      isChecked, 
+      totalChecked, 
+      totalAvailable, 
+      setTotalAvailable,
+      userName, 
+      setUserName 
+    }}>
       {children}
     </ProgressContext.Provider>
   );

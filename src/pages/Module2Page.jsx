@@ -112,9 +112,18 @@ export default function Module2Page() {
 
       {/* 2.3 Variables & Types */}
       <div className="mb-16 pb-12 border-b border-border" id="variables">
-        <SectionHeader num="2.3" title="Variables, Types & %TYPE / %ROWTYPE" sub="Anchored declarations — the smart way to declare" />
+        <SectionHeader num="2.3" title="Variables, Types & Anchors" sub="The smart way to declare variables" />
+
+        <ConceptCard title="Anchored Declarations (%TYPE and %ROWTYPE)">
+          <p className="mb-3">Hardcoding data types (like <code className="text-accent2 font-mono">VARCHAR2(50)</code>) is dangerous. If the database schema changes, your code breaks. Instead, <strong>anchor</strong> your variables to the database schema:</p>
+          <ul className="ml-5 space-y-2">
+            <li><code className="text-accent2 font-mono font-bold">%TYPE</code> — Inherits the exact data type of a specific <strong>column</strong>. <br/><span className="text-muted text-[0.8rem]">Example: <code>v_sal employees.salary%TYPE;</code></span></li>
+            <li><code className="text-accent2 font-mono font-bold">%ROWTYPE</code> — Inherits the structure of an entire <strong>table row</strong> or view. <br/><span className="text-muted text-[0.8rem]">Example: <code>v_emp employees%ROWTYPE;</code></span></li>
+          </ul>
+        </ConceptCard>
 
         <CodeBlock label="PL/SQL — Variables & Anchored Types">{`<span class="kw">DECLARE</span>
+    <span class="cmt">-- Hardcoded (Not Recommended)</span>
     <span class="var">v_name</span>    <span class="type">VARCHAR2</span>(<span class="num">50</span>)   := <span class="str">'Oracle'</span>;
     <span class="var">v_count</span>   <span class="type">NUMBER</span>          := <span class="num">0</span>;
     <span class="var">v_flag</span>    <span class="type">BOOLEAN</span>         := <span class="kw">TRUE</span>;
@@ -127,17 +136,15 @@ export default function Module2Page() {
     <span class="var">v_emp</span>     employees%<span class="kw">ROWTYPE</span>;
 
 <span class="kw">BEGIN</span>
+    <span class="cmt">-- Fetching a whole row at once into a %ROWTYPE variable</span>
     <span class="kw">SELECT</span> * <span class="kw">INTO</span> <span class="var">v_emp</span>
     <span class="kw">FROM</span>   employees
     <span class="kw">WHERE</span>  emp_id = <span class="num">1</span>;
 
+    <span class="cmt">-- Accessing fields via dot notation</span>
     <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="var">v_emp</span>.first_name || <span class="str">' - Dept: '</span> || <span class="var">v_emp</span>.dept_id);
 <span class="kw">END</span>;
 <span class="kw">/</span>`}</CodeBlock>
-
-        <TipBox>
-          Always prefer <code className="text-accent2 font-mono">%TYPE</code> and <code className="text-accent2 font-mono">%ROWTYPE</code> over hardcoded data types. If the DBA changes a column from VARCHAR2(50) to VARCHAR2(100), your code won't break.
-        </TipBox>
 
         <Checklist items={[
           { id: 'c_var_1', label: 'Understand %TYPE and %ROWTYPE anchored declarations' },
@@ -240,6 +247,33 @@ export default function Module2Page() {
           { id: 'c_loop_2', label: 'Know when to use each loop type' },
           { id: 'c_loop_3', label: 'Understand EXIT WHEN and CONTINUE statements' },
         ]} />
+      </div>
+
+      {/* 2.6 Intro to Cursors */}
+      <div className="mb-16 pb-12 border-b border-border" id="cursors-intro">
+        <SectionHeader num="2.6" title="Introduction to Cursors" sub="Implicit vs Explicit — A light intro before Module 3" />
+
+        <ConceptCard title="What is a Cursor?">
+          <p className="mb-3">When Oracle executes a SQL statement, it creates a temporary workspace in memory to hold the data. A <strong>cursor</strong> is simply a pointer or name for this workspace. There are two types:</p>
+          <ul className="ml-5 space-y-2">
+            <li><strong>Implicit Cursors:</strong> Oracle creates these automatically for every single DML statement (INSERT, UPDATE, DELETE) and <code>SELECT INTO</code> statement. You don't manage them, but you can check their status using attributes like <code>SQL%ROWCOUNT</code> or <code>SQL%FOUND</code>.</li>
+            <li><strong>Explicit Cursors:</strong> You create these manually when your query returns <em>more than one row</em>. You must explicitly DECLARE, OPEN, FETCH, and CLOSE them. We will dive deep into these in Module 3.</li>
+          </ul>
+        </ConceptCard>
+
+        <CodeBlock label="PL/SQL — Implicit Cursor Attributes">{`<span class="kw">BEGIN</span>
+    <span class="kw">UPDATE</span> employees
+    <span class="kw">SET</span> salary = salary * <span class="num">1.1</span>
+    <span class="kw">WHERE</span> dept_id = <span class="num">50</span>;
+
+    <span class="cmt">-- SQL%ROWCOUNT tells us how many rows the implicit cursor just updated!</span>
+    <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'Employees updated: '</span> || SQL%ROWCOUNT);
+<span class="kw">END</span>;
+<span class="kw">/</span>`}</CodeBlock>
+
+        <TipBox>
+          Remember: <code>SELECT INTO</code> uses an <strong>implicit cursor</strong>. It expects exactly one row. If it finds 0 rows, it throws <code>NO_DATA_FOUND</code>. If it finds 2+ rows, it throws <code>TOO_MANY_ROWS</code>. To handle multiple rows, you <em>must</em> learn Explicit Cursors in the next module!
+        </TipBox>
       </div>
 
       <div className="flex justify-between pt-8">
