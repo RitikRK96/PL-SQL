@@ -1,0 +1,2685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PL/SQL Masterclass — Zero to Job-Ready</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161e;
+    --surface2: #1a1e2a;
+    --border: #252a38;
+    --accent: #f0a500;
+    --accent2: #3ecfcf;
+    --accent3: #e05c6b;
+    --text: #d4daea;
+    --muted: #6b7591;
+    --code-bg: #0a0c10;
+    --green: #4caf82;
+    --purple: #8b6eff;
+    --radius: 10px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.75;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0;
+    width: 270px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    z-index: 100;
+    padding-bottom: 2rem;
+    transition: transform 0.3s ease;
+  }
+  #sidebar::-webkit-scrollbar { width: 4px; }
+  #sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .sidebar-header {
+    padding: 1.5rem 1.2rem 1rem;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0;
+    background: var(--surface);
+    z-index: 2;
+  }
+  .sidebar-header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .sidebar-header p { font-size: 0.72rem; color: var(--muted); margin-top: 3px; }
+
+  .progress-bar-wrap {
+    padding: 0.8rem 1.2rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky; top: 74px;
+    z-index: 2;
+  }
+  .progress-label { font-size: 0.7rem; color: var(--muted); margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .progress-label span { color: var(--accent); font-weight: 600; }
+  .progress-bar-bg { background: var(--border); border-radius: 4px; height: 6px; }
+  .progress-bar-fill { height: 6px; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.4s ease; width: 0%; }
+
+  .nav-group { padding: 0.6rem 0; }
+  .nav-group-title {
+    padding: 0.3rem 1.2rem;
+    font-size: 0.65rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0.38rem 1.2rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-decoration: none;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+  .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+  .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(240,165,0,0.06); }
+  .nav-item .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--border); flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .nav-item.done .dot { background: var(--green); }
+
+  /* ── MAIN ── */
+  #main {
+    margin-left: 270px;
+    padding: 2.5rem 2.5rem 5rem;
+    max-width: 900px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 3rem 0 2.5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 3rem;
+  }
+  .hero-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent2);
+    border: 1px solid var(--accent2);
+    padding: 2px 10px;
+    border-radius: 20px;
+    margin-bottom: 1rem;
+    letter-spacing: 0.05em;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.8rem;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+    margin-bottom: 1rem;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p { color: var(--muted); max-width: 580px; font-size: 0.95rem; line-height: 1.8; }
+  .hero-stats {
+    display: flex; gap: 2rem; margin-top: 2rem;
+    padding-top: 1.5rem; border-top: 1px solid var(--border);
+  }
+  .stat { text-align: center; }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; color: var(--accent); }
+  .stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* ── SECTION ── */
+  .section {
+    margin-bottom: 4rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-header {
+    display: flex; align-items: flex-start; gap: 1.2rem;
+    margin-bottom: 2rem;
+  }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    background: rgba(240,165,0,0.1);
+    border: 1px solid rgba(240,165,0,0.3);
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-top: 5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .section h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+  }
+  .section-sub { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+
+  .concept-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.2rem;
+  }
+  .concept-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.7rem;
+    color: var(--accent2);
+  }
+  .concept-card p { font-size: 0.88rem; color: var(--text); line-height: 1.8; }
+  .concept-card ul { margin: 0.5rem 0 0 1.2rem; font-size: 0.88rem; }
+  .concept-card ul li { margin-bottom: 4px; color: var(--text); }
+
+  .analogy-box {
+    background: rgba(62,207,207,0.07);
+    border: 1px solid rgba(62,207,207,0.2);
+    border-left: 3px solid var(--accent2);
+    border-radius: var(--radius);
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+    font-size: 0.87rem;
+  }
+  .analogy-box strong { color: var(--accent2); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.07em; display: block; margin-bottom: 4px; }
+
+  .tip-box {
+    background: rgba(240,165,0,0.07);
+    border: 1px solid rgba(240,165,0,0.2);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+    font-size: 0.87rem;
+  }
+  .tip-box strong { color: var(--accent); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.07em; display: block; margin-bottom: 4px; }
+
+  .warn-box {
+    background: rgba(224,92,107,0.07);
+    border: 1px solid rgba(224,92,107,0.2);
+    border-left: 3px solid var(--accent3);
+    border-radius: var(--radius);
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+    font-size: 0.87rem;
+  }
+  .warn-box strong { color: var(--accent3); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.07em; display: block; margin-bottom: 4px; }
+
+  /* ── CODE BLOCKS ── */
+  .code-wrap {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin: 1rem 0;
+  }
+  .code-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.5rem 1rem;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+  .code-label { color: var(--accent); }
+  .copy-btn {
+    cursor: pointer;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { color: var(--text); border-color: var(--text); }
+  pre {
+    padding: 1.2rem 1.2rem;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.9;
+    color: #c9d1e0;
+  }
+  pre::-webkit-scrollbar { height: 4px; }
+  pre::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  .kw { color: #79b8ff; font-weight: 700; }
+  .str { color: #9ecbff; }
+  .cmt { color: #4a5568; font-style: italic; }
+  .num { color: #f69d50; }
+  .fn { color: #b392f0; }
+  .var { color: var(--accent2); }
+  .type { color: #f08d49; }
+
+  /* ── PRACTICE ── */
+  .practice-section {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  .practice-section h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--purple);
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .practice-section h4::before { content: '✦'; font-size: 0.7rem; }
+
+  /* ── INTERVIEW ── */
+  .interview-card {
+    background: linear-gradient(135deg, rgba(139,110,255,0.1), rgba(240,165,0,0.05));
+    border: 1px solid rgba(139,110,255,0.3);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .interview-card h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--purple);
+    margin-bottom: 0.8rem;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .interview-badge {
+    background: var(--purple);
+    color: #fff;
+    font-size: 0.6rem;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 1px 7px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── CHECKLIST ── */
+  .checklist { list-style: none; margin: 0.5rem 0; }
+  .checklist li {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.88rem;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist input[type="checkbox"] {
+    appearance: none;
+    width: 16px; height: 16px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface2);
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .checklist input[type="checkbox"]:checked {
+    background: var(--green);
+    border-color: var(--green);
+  }
+  .checklist input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: -2px; left: 1px;
+    font-size: 12px;
+    color: #fff;
+    font-weight: 700;
+  }
+  .checklist label { cursor: pointer; line-height: 1.6; }
+  .checklist input:checked + label { text-decoration: line-through; color: var(--muted); }
+
+  /* ── TABLE ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+    margin: 1rem 0;
+  }
+  th {
+    background: var(--surface2);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.7rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  td code { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--accent2); }
+
+  /* ── RESOURCES ── */
+  .resource-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .resource-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.2rem;
+    transition: border-color 0.2s;
+    text-decoration: none;
+    display: block;
+  }
+  .resource-card:hover { border-color: var(--accent); }
+  .resource-type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .resource-card h5 { font-size: 0.88rem; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .resource-card p { font-size: 0.78rem; color: var(--muted); }
+
+  /* ── ROADMAP ── */
+  .roadmap {
+    position: relative;
+    padding-left: 2rem;
+    margin: 1.5rem 0;
+  }
+  .roadmap::before {
+    content: '';
+    position: absolute;
+    left: 7px; top: 8px; bottom: 8px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), var(--accent2), var(--purple));
+  }
+  .roadmap-item {
+    position: relative;
+    padding: 0 0 1.5rem 1rem;
+  }
+  .roadmap-item::before {
+    content: '';
+    position: absolute;
+    left: -18px; top: 8px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+  }
+  .roadmap-item:nth-child(2)::before { background: var(--accent2); }
+  .roadmap-item:nth-child(3)::before { background: var(--purple); }
+  .roadmap-item:nth-child(4)::before { background: var(--green); }
+  .roadmap-item:nth-child(5)::before { background: var(--accent3); }
+  .roadmap-item h5 { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; margin-bottom: 3px; }
+  .roadmap-item p { font-size: 0.82rem; color: var(--muted); }
+
+  /* ── FINAL PROJECT ── */
+  .project-card {
+    background: linear-gradient(135deg, rgba(240,165,0,0.08), rgba(62,207,207,0.06));
+    border: 1px solid rgba(240,165,0,0.25);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-top: 1.5rem;
+  }
+  .project-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 0.8rem;
+  }
+
+  /* ── CHIPS ── */
+  .chip {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    padding: 2px 10px;
+    border-radius: 20px;
+    border: 1px solid;
+    margin: 2px;
+  }
+  .chip-gold { color: var(--accent); border-color: rgba(240,165,0,0.4); background: rgba(240,165,0,0.07); }
+  .chip-cyan { color: var(--accent2); border-color: rgba(62,207,207,0.4); background: rgba(62,207,207,0.07); }
+  .chip-purple { color: var(--purple); border-color: rgba(139,110,255,0.4); background: rgba(139,110,255,0.07); }
+  .chip-green { color: var(--green); border-color: rgba(76,175,130,0.4); background: rgba(76,175,130,0.07); }
+  .chip-red { color: var(--accent3); border-color: rgba(224,92,107,0.4); background: rgba(224,92,107,0.07); }
+
+  /* ── TOGGLE ANSWER ── */
+  .toggle-answer {
+    margin-top: 0.6rem;
+    cursor: pointer;
+    font-size: 0.78rem;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    user-select: none;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .toggle-answer:hover { text-decoration: underline; }
+  .answer-content { display: none; margin-top: 0.8rem; }
+  .answer-content.open { display: block; }
+
+  /* ── TABS ── */
+  .tabs { display: flex; gap: 4px; margin-bottom: -1px; }
+  .tab-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    background: var(--surface2);
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 6px 6px 0 0;
+    transition: all 0.15s;
+  }
+  .tab-btn.active { background: var(--code-bg); color: var(--accent); border-color: var(--border); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ── MOBILE TOGGLE ── */
+  #menu-toggle {
+    display: none;
+    position: fixed; top: 1rem; left: 1rem;
+    z-index: 200;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    color: var(--text);
+    font-size: 0.9rem;
+  }
+  @media (max-width: 800px) {
+    #menu-toggle { display: block; }
+    #sidebar { transform: translateX(-100%); }
+    #sidebar.open { transform: translateX(0); }
+    #main { margin-left: 0; padding: 5rem 1.2rem 4rem; }
+    .hero h1 { font-size: 2rem; }
+    .hero-stats { flex-wrap: wrap; gap: 1rem; }
+  }
+
+  /* ── SCROLL TO TOP ── */
+  #scrolltop {
+    position: fixed; bottom: 2rem; right: 2rem;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 50%;
+    width: 40px; height: 40px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 99;
+    transition: opacity 0.2s;
+  }
+  #scrolltop:hover { background: #ffc030; }
+
+  /* divider */
+  hr.fancy { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+</style>
+</head>
+<body>
+
+<button id="menu-toggle" onclick="toggleSidebar()">☰</button>
+<button id="scrolltop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <h1>PL/SQL Masterclass</h1>
+    <p>Zero → Job-Ready Track</p>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-label">Your Progress <span id="pct">0%</span></div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="pbar"></div></div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">Getting Started</div>
+    <a class="nav-item" href="#overview" onclick="closeSidebar()"><span class="dot"></span> Course Overview</a>
+    <a class="nav-item" href="#setup" onclick="closeSidebar()"><span class="dot"></span> Environment Setup</a>
+    <a class="nav-item" href="#resources" onclick="closeSidebar()"><span class="dot"></span> Resources & Tools</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">Module 1 — SQL Basics</div>
+    <a class="nav-item" href="#sql-intro" onclick="closeSidebar()"><span class="dot"></span> 1.1 What is SQL?</a>
+    <a class="nav-item" href="#ddl-dml" onclick="closeSidebar()"><span class="dot"></span> 1.2 DDL & DML</a>
+    <a class="nav-item" href="#select" onclick="closeSidebar()"><span class="dot"></span> 1.3 SELECT Queries</a>
+    <a class="nav-item" href="#joins" onclick="closeSidebar()"><span class="dot"></span> 1.4 JOINs</a>
+    <a class="nav-item" href="#groupby" onclick="closeSidebar()"><span class="dot"></span> 1.5 GROUP BY & Aggregates</a>
+    <a class="nav-item" href="#subqueries" onclick="closeSidebar()"><span class="dot"></span> 1.6 Subqueries</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">Module 2 — PL/SQL Foundations</div>
+    <a class="nav-item" href="#plsql-intro" onclick="closeSidebar()"><span class="dot"></span> 2.1 What is PL/SQL?</a>
+    <a class="nav-item" href="#block" onclick="closeSidebar()"><span class="dot"></span> 2.2 Block Structure</a>
+    <a class="nav-item" href="#variables" onclick="closeSidebar()"><span class="dot"></span> 2.3 Variables & Types</a>
+    <a class="nav-item" href="#control" onclick="closeSidebar()"><span class="dot"></span> 2.4 Control Structures</a>
+    <a class="nav-item" href="#loops" onclick="closeSidebar()"><span class="dot"></span> 2.5 Loops</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">Module 3 — Advanced PL/SQL</div>
+    <a class="nav-item" href="#cursors" onclick="closeSidebar()"><span class="dot"></span> 3.1 Cursors</a>
+    <a class="nav-item" href="#exceptions" onclick="closeSidebar()"><span class="dot"></span> 3.2 Exception Handling</a>
+    <a class="nav-item" href="#procedures" onclick="closeSidebar()"><span class="dot"></span> 3.3 Stored Procedures</a>
+    <a class="nav-item" href="#functions" onclick="closeSidebar()"><span class="dot"></span> 3.4 Functions</a>
+    <a class="nav-item" href="#triggers" onclick="closeSidebar()"><span class="dot"></span> 3.5 Triggers</a>
+    <a class="nav-item" href="#packages" onclick="closeSidebar()"><span class="dot"></span> 3.6 Packages</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">Module 4 — Expert Level</div>
+    <a class="nav-item" href="#collections" onclick="closeSidebar()"><span class="dot"></span> 4.1 Collections & Records</a>
+    <a class="nav-item" href="#bulk" onclick="closeSidebar()"><span class="dot"></span> 4.2 Bulk Operations</a>
+    <a class="nav-item" href="#dynamic" onclick="closeSidebar()"><span class="dot"></span> 4.3 Dynamic SQL</a>
+    <a class="nav-item" href="#performance" onclick="closeSidebar()"><span class="dot"></span> 4.4 Performance Tuning</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">Capstone</div>
+    <a class="nav-item" href="#interview-prep" onclick="closeSidebar()"><span class="dot"></span> Interview Prep</a>
+    <a class="nav-item" href="#final-project" onclick="closeSidebar()"><span class="dot"></span> Final Project</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════ MAIN CONTENT ═══════════════════════ -->
+<main id="main">
+
+  <!-- HERO -->
+  <div class="hero" id="overview">
+    <div class="hero-tag">// COMPLETE LEARNING TRACK</div>
+    <h1>Master <span>PL/SQL</span><br/>From Zero to<br/>Job-Ready</h1>
+    <p>A structured, mentor-guided curriculum covering every concept you need — from your first SELECT query to advanced performance tuning. Built for absolute beginners aiming for professional-level mastery.</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">4</div><div class="stat-label">Modules</div></div>
+      <div class="stat"><div class="stat-num">17</div><div class="stat-label">Topics</div></div>
+      <div class="stat"><div class="stat-num">50+</div><div class="stat-label">Code Examples</div></div>
+      <div class="stat"><div class="stat-num">40+</div><div class="stat-label">Practice Q's</div></div>
+    </div>
+  </div>
+
+  <!-- ROADMAP -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">ROADMAP</span>
+      <div>
+        <h2>Your Learning Path</h2>
+        <div class="section-sub">Follow this sequence for maximum retention</div>
+      </div>
+    </div>
+    <div class="roadmap">
+      <div class="roadmap-item">
+        <h5>Week 1–2 — SQL Fundamentals</h5>
+        <p>SELECT, INSERT, UPDATE, DELETE, JOINs, Aggregations, Subqueries</p>
+      </div>
+      <div class="roadmap-item">
+        <h5>Week 3–4 — PL/SQL Core</h5>
+        <p>Blocks, Variables, Control Flow, Loops, Basic Queries inside PL/SQL</p>
+      </div>
+      <div class="roadmap-item">
+        <h5>Week 5–6 — Cursors & Exception Handling</h5>
+        <p>Explicit/Implicit Cursors, Named Exceptions, RAISE, SQLCODE, SQLERRM</p>
+      </div>
+      <div class="roadmap-item">
+        <h5>Week 7–8 — Procedures, Functions, Triggers & Packages</h5>
+        <p>Reusable code units, business logic layer, database event automation</p>
+      </div>
+      <div class="roadmap-item">
+        <h5>Week 9–10 — Advanced & Project</h5>
+        <p>Bulk Collect, FORALL, Dynamic SQL, Performance Tuning, Final Project</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENVIRONMENT SETUP -->
+  <div class="section" id="setup">
+    <div class="section-header">
+      <span class="section-num">SETUP</span>
+      <div>
+        <h2>Environment Setup</h2>
+        <div class="section-sub">Get your tools ready before writing a single line</div>
+      </div>
+    </div>
+
+    <div class="concept-card">
+      <h3>Option 1 — Oracle LiveSQL (Recommended for Beginners)</h3>
+      <p>Free, browser-based Oracle SQL environment. No installation needed. Go to <strong>livesql.oracle.com</strong> and sign up for a free Oracle account.</p>
+    </div>
+    <div class="concept-card">
+      <h3>Option 2 — Oracle XE (Local Installation)</h3>
+      <p>Download Oracle Database Express Edition (free) from oracle.com. Install <strong>SQL*Plus</strong> or <strong>SQL Developer</strong> (GUI tool) as your client.</p>
+    </div>
+    <div class="concept-card">
+      <h3>Option 3 — Docker (For Developers)</h3>
+      <p>Run Oracle XE in a container: <code style="color:var(--accent2); font-family:'JetBrains Mono',monospace;">docker run -d -p 1521:1521 container-registry.oracle.com/database/express:21.3.0-xe</code></p>
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="s1" onchange="updateProgress()"><label for="s1">Create Oracle LiveSQL account at livesql.oracle.com</label></li>
+      <li><input type="checkbox" id="s2" onchange="updateProgress()"><label for="s2">Run your first SQL query: SELECT * FROM DUAL;</label></li>
+      <li><input type="checkbox" id="s3" onchange="updateProgress()"><label for="s3">Explore the sample HR schema tables (EMPLOYEES, DEPARTMENTS)</label></li>
+    </ul>
+  </div>
+
+  <!-- RESOURCES -->
+  <div class="section" id="resources">
+    <div class="section-header">
+      <span class="section-num">RESOURCES</span>
+      <div>
+        <h2>Tools & Learning Resources</h2>
+        <div class="section-sub">Everything you need, curated and rated</div>
+      </div>
+    </div>
+
+    <table>
+      <thead><tr><th>Resource</th><th>Type</th><th>Cost</th><th>Best For</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Oracle LiveSQL</strong> — livesql.oracle.com</td><td><span class="chip chip-cyan">Online IDE</span></td><td><span class="chip chip-green">FREE</span></td><td>Practice & experiments</td></tr>
+        <tr><td><strong>Oracle SQL Developer</strong></td><td><span class="chip chip-cyan">Desktop IDE</span></td><td><span class="chip chip-green">FREE</span></td><td>Full development</td></tr>
+        <tr><td><strong>Oracle Docs</strong> — docs.oracle.com</td><td><span class="chip chip-gold">Documentation</span></td><td><span class="chip chip-green">FREE</span></td><td>Official reference</td></tr>
+        <tr><td><strong>Oracle Database 19c PL/SQL Language Reference</strong></td><td><span class="chip chip-gold">Manual</span></td><td><span class="chip chip-green">FREE PDF</span></td><td>Deep dives</td></tr>
+        <tr><td><strong>Udemy — Oracle SQL & PL/SQL</strong></td><td><span class="chip chip-purple">Video Course</span></td><td><span class="chip chip-red">Paid (~$15)</span></td><td>Structured learning</td></tr>
+        <tr><td><strong>w3resource.com/oracle</strong></td><td><span class="chip chip-cyan">Exercises</span></td><td><span class="chip chip-green">FREE</span></td><td>Practice problems</td></tr>
+        <tr><td><strong>plsql.co.uk</strong></td><td><span class="chip chip-cyan">Tutorials</span></td><td><span class="chip chip-green">FREE</span></td><td>Quick references</td></tr>
+        <tr><td><strong>Stack Overflow</strong></td><td><span class="chip chip-purple">Community</span></td><td><span class="chip chip-green">FREE</span></td><td>Debugging help</td></tr>
+        <tr><td><strong>"Oracle PL/SQL Programming"</strong> — Steven Feuerstein</td><td><span class="chip chip-gold">Book</span></td><td><span class="chip chip-red">Paid</span></td><td>The definitive bible</td></tr>
+        <tr><td><strong>asktom.oracle.com</strong></td><td><span class="chip chip-cyan">Q&A Forum</span></td><td><span class="chip chip-green">FREE</span></td><td>Expert answers</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ══════════════════ MODULE 1: SQL BASICS ══════════════════ -->
+
+  <div class="section" id="sql-intro">
+    <div class="section-header">
+      <span class="section-num">1.1</span>
+      <div>
+        <h2>What is SQL?</h2>
+        <div class="section-sub">The language databases speak</div>
+      </div>
+    </div>
+
+    <div class="analogy-box">
+      <strong>🏪 Real-World Analogy</strong>
+      Think of a database as a <strong>massive filing cabinet</strong> in a company. Each drawer is a <strong>table</strong>, each folder is a <strong>row</strong>, and the label on the folder is a <strong>column</strong>. SQL is your <em>language</em> to tell the filing assistant what to find, add, change, or remove.
+    </div>
+
+    <div class="concept-card">
+      <h3>SQL vs PL/SQL — What's the difference?</h3>
+      <table>
+        <thead><tr><th>SQL</th><th>PL/SQL</th></tr></thead>
+        <tbody>
+          <tr><td>Structured Query Language</td><td>Procedural Language / SQL</td></tr>
+          <tr><td>Single statements</td><td>Blocks of code with logic</td></tr>
+          <tr><td>Only works with data</td><td>Has IF/ELSE, loops, variables</td></tr>
+          <tr><td>Declarative: "what to get"</td><td>Procedural: "how to process"</td></tr>
+          <tr><td>Run one at a time</td><td>Send whole programs to DB</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="concept-card">
+      <h3>SQL Command Categories</h3>
+      <ul>
+        <li><span class="chip chip-gold">DDL</span> Data Definition Language — CREATE, ALTER, DROP, TRUNCATE</li>
+        <li><span class="chip chip-cyan">DML</span> Data Manipulation Language — SELECT, INSERT, UPDATE, DELETE</li>
+        <li><span class="chip chip-purple">DCL</span> Data Control Language — GRANT, REVOKE</li>
+        <li><span class="chip chip-green">TCL</span> Transaction Control Language — COMMIT, ROLLBACK, SAVEPOINT</li>
+      </ul>
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="c_1_1" onchange="updateProgress()"><label for="c_1_1">Understand the difference between SQL and PL/SQL</label></li>
+      <li><input type="checkbox" id="c_1_2" onchange="updateProgress()"><label for="c_1_2">Know the 4 SQL command categories (DDL, DML, DCL, TCL)</label></li>
+      <li><input type="checkbox" id="c_1_3" onchange="updateProgress()"><label for="c_1_3">Successfully connected to Oracle LiveSQL or local DB</label></li>
+    </ul>
+  </div>
+
+  <!-- DDL/DML -->
+  <div class="section" id="ddl-dml">
+    <div class="section-header">
+      <span class="section-num">1.2</span>
+      <div>
+        <h2>DDL & DML</h2>
+        <div class="section-sub">Creating tables and working with data</div>
+      </div>
+    </div>
+
+    <div class="concept-card">
+      <h3>CREATE TABLE — Building your structure</h3>
+      <p>A table is like a spreadsheet template — you define the columns once, then fill in rows of data.</p>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-label">SQL — Create & Populate Table</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="cmt">-- Create an employees table (like designing a form)</span>
+<span class="kw">CREATE TABLE</span> employees (
+    emp_id     <span class="type">NUMBER</span>(<span class="num">6</span>)       <span class="kw">PRIMARY KEY</span>,   <span class="cmt">-- Unique identifier</span>
+    first_name <span class="type">VARCHAR2</span>(<span class="num">50</span>)  <span class="kw">NOT NULL</span>,      <span class="cmt">-- Text, max 50 chars</span>
+    last_name  <span class="type">VARCHAR2</span>(<span class="num">50</span>)  <span class="kw">NOT NULL</span>,
+    salary     <span class="type">NUMBER</span>(<span class="num">10</span>,<span class="num">2</span>),               <span class="cmt">-- Decimal number</span>
+    dept_id    <span class="type">NUMBER</span>(<span class="num">4</span>),
+    hire_date  <span class="type">DATE</span> <span class="kw">DEFAULT</span> <span class="fn">SYSDATE</span>         <span class="cmt">-- Defaults to today</span>
+);
+
+<span class="cmt">-- Insert rows (like filling in the form)</span>
+<span class="kw">INSERT INTO</span> employees (emp_id, first_name, last_name, salary, dept_id)
+<span class="kw">VALUES</span> (<span class="num">1</span>, <span class="str">'Amit'</span>, <span class="str">'Sharma'</span>, <span class="num">75000</span>, <span class="num">10</span>);
+
+<span class="kw">INSERT INTO</span> employees (emp_id, first_name, last_name, salary, dept_id)
+<span class="kw">VALUES</span> (<span class="num">2</span>, <span class="str">'Priya'</span>, <span class="str">'Verma'</span>, <span class="num">90000</span>, <span class="num">20</span>);
+
+<span class="kw">INSERT INTO</span> employees (emp_id, first_name, last_name, salary, dept_id)
+<span class="kw">VALUES</span> (<span class="num">3</span>, <span class="str">'Rahul'</span>, <span class="str">'Nair'</span>, <span class="num">60000</span>, <span class="num">10</span>);
+
+<span class="cmt">-- Update a value</span>
+<span class="kw">UPDATE</span> employees
+<span class="kw">SET</span> salary = <span class="num">80000</span>
+<span class="kw">WHERE</span> emp_id = <span class="num">3</span>;
+
+<span class="cmt">-- Delete a record</span>
+<span class="kw">DELETE FROM</span> employees
+<span class="kw">WHERE</span> emp_id = <span class="num">3</span>;
+
+<span class="cmt">-- Always commit to save DML changes!</span>
+<span class="kw">COMMIT</span>;
+
+<span class="cmt">-- Undo changes (before COMMIT)</span>
+<span class="kw">ROLLBACK</span>;</pre>
+    </div>
+
+    <div class="tip-box">
+      <strong>💡 Developer Tip</strong>
+      Always have a WHERE clause in UPDATE and DELETE. Without it, you'll modify <em>every single row</em>. "DELETE FROM employees" wipes the entire table! Test with a SELECT first using the same WHERE condition.
+    </div>
+
+    <div class="warn-box">
+      <strong>⚠️ Warning</strong>
+      DDL commands (CREATE, DROP, ALTER) auto-commit. You cannot ROLLBACK them. DML (INSERT, UPDATE, DELETE) must be explicitly committed.
+    </div>
+
+    <div class="practice-section">
+      <h4>Practice Questions — DDL & DML</h4>
+      <ul class="checklist">
+        <li><input type="checkbox" id="p_ddl_1" onchange="updateProgress()"><label for="p_ddl_1"><strong>Q1:</strong> Create a DEPARTMENTS table with columns: dept_id (PK), dept_name, location, manager_id. Insert 3 rows.</label></li>
+        <li><input type="checkbox" id="p_ddl_2" onchange="updateProgress()"><label for="p_ddl_2"><strong>Q2:</strong> Add a column "email VARCHAR2(100)" to the employees table using ALTER TABLE.</label></li>
+        <li><input type="checkbox" id="p_ddl_3" onchange="updateProgress()"><label for="p_ddl_3"><strong>Q3:</strong> Update the salary of all employees in dept_id=10 with a 10% raise. What would happen if you forget the WHERE clause?</label></li>
+      </ul>
+      <div class="toggle-answer" onclick="toggleAns('ddl_ans')">▶ Show Q1 Answer</div>
+      <div class="answer-content" id="ddl_ans">
+        <div class="code-wrap">
+          <div class="code-header"><span class="code-label">SQL — Answer</span></div>
+          <pre><span class="kw">CREATE TABLE</span> departments (
+    dept_id    <span class="type">NUMBER</span>(<span class="num">4</span>)      <span class="kw">PRIMARY KEY</span>,
+    dept_name  <span class="type">VARCHAR2</span>(<span class="num">100</span>) <span class="kw">NOT NULL</span>,
+    location   <span class="type">VARCHAR2</span>(<span class="num">100</span>),
+    manager_id <span class="type">NUMBER</span>(<span class="num">6</span>)
+);
+
+<span class="kw">INSERT INTO</span> departments <span class="kw">VALUES</span> (<span class="num">10</span>, <span class="str">'Engineering'</span>, <span class="str">'Bangalore'</span>, <span class="num">1</span>);
+<span class="kw">INSERT INTO</span> departments <span class="kw">VALUES</span> (<span class="num">20</span>, <span class="str">'Finance'</span>, <span class="str">'Mumbai'</span>, <span class="num">2</span>);
+<span class="kw">INSERT INTO</span> departments <span class="kw">VALUES</span> (<span class="num">30</span>, <span class="str">'HR'</span>, <span class="str">'Delhi'</span>, <span class="num">3</span>);
+<span class="kw">COMMIT</span>;</pre>
+        </div>
+      </div>
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="c_ddl_1" onchange="updateProgress()"><label for="c_ddl_1">Understand CREATE TABLE syntax with data types</label></li>
+      <li><input type="checkbox" id="c_ddl_2" onchange="updateProgress()"><label for="c_ddl_2">Can write INSERT, UPDATE, DELETE with WHERE clause</label></li>
+      <li><input type="checkbox" id="c_ddl_3" onchange="updateProgress()"><label for="c_ddl_3">Know difference between COMMIT/ROLLBACK and why DDL auto-commits</label></li>
+    </ul>
+  </div>
+
+  <!-- SELECT -->
+  <div class="section" id="select">
+    <div class="section-header">
+      <span class="section-num">1.3</span>
+      <div>
+        <h2>SELECT Queries</h2>
+        <div class="section-sub">The most important SQL statement you'll ever learn</div>
+      </div>
+    </div>
+
+    <div class="analogy-box">
+      <strong>📚 Analogy</strong>
+      SELECT is like asking a librarian for books. You say: "Give me (SELECT) the title and author (columns) from the library catalog (FROM table) where the genre is Sci-Fi (WHERE condition) sorted by year (ORDER BY)."
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-label">SQL — SELECT Deep Dive</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="cmt">-- 1. Basic SELECT</span>
+<span class="kw">SELECT</span> first_name, last_name, salary
+<span class="kw">FROM</span>   employees;
+
+<span class="cmt">-- 2. SELECT with WHERE</span>
+<span class="kw">SELECT</span> first_name, salary
+<span class="kw">FROM</span>   employees
+<span class="kw">WHERE</span>  salary > <span class="num">70000</span>;
+
+<span class="cmt">-- 3. Multiple conditions</span>
+<span class="kw">SELECT</span> *
+<span class="kw">FROM</span>   employees
+<span class="kw">WHERE</span>  dept_id = <span class="num">10</span>
+  <span class="kw">AND</span>  salary <span class="kw">BETWEEN</span> <span class="num">50000</span> <span class="kw">AND</span> <span class="num">90000</span>;
+
+<span class="cmt">-- 4. LIKE for pattern matching</span>
+<span class="kw">SELECT</span> *
+<span class="kw">FROM</span>   employees
+<span class="kw">WHERE</span>  first_name <span class="kw">LIKE</span> <span class="str">'A%'</span>;   <span class="cmt">-- Names starting with A</span>
+
+<span class="cmt">-- 5. ORDER BY</span>
+<span class="kw">SELECT</span> first_name, salary
+<span class="kw">FROM</span>   employees
+<span class="kw">ORDER BY</span> salary <span class="kw">DESC</span>;        <span class="cmt">-- Highest first</span>
+
+<span class="cmt">-- 6. Column alias (rename output)</span>
+<span class="kw">SELECT</span> first_name <span class="kw">AS</span> <span class="str">"Employee Name"</span>,
+       salary * <span class="num">12</span> <span class="kw">AS</span> annual_salary
+<span class="kw">FROM</span>   employees;
+
+<span class="cmt">-- 7. DISTINCT (remove duplicates)</span>
+<span class="kw">SELECT DISTINCT</span> dept_id
+<span class="kw">FROM</span>   employees;
+
+<span class="cmt">-- 8. NULL handling</span>
+<span class="kw">SELECT</span> first_name, <span class="fn">NVL</span>(salary, <span class="num">0</span>) <span class="kw">AS</span> salary   <span class="cmt">-- Replace NULL with 0</span>
+<span class="kw">FROM</span>   employees;
+
+<span class="cmt">-- 9. IN operator</span>
+<span class="kw">SELECT</span> *
+<span class="kw">FROM</span>   employees
+<span class="kw">WHERE</span>  dept_id <span class="kw">IN</span> (<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>);</pre>
+    </div>
+
+    <div class="concept-card">
+      <h3>Important Oracle Data Types</h3>
+      <table>
+        <thead><tr><th>Type</th><th>Description</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><code>NUMBER(p,s)</code></td><td>Numeric, p=precision, s=scale</td><td>NUMBER(10,2) → 12345678.99</td></tr>
+          <tr><td><code>VARCHAR2(n)</code></td><td>Variable-length string</td><td>VARCHAR2(100)</td></tr>
+          <tr><td><code>CHAR(n)</code></td><td>Fixed-length string</td><td>CHAR(1) for Y/N</td></tr>
+          <tr><td><code>DATE</code></td><td>Date + time</td><td>01-JAN-2024</td></tr>
+          <tr><td><code>TIMESTAMP</code></td><td>Date + time + fractional seconds</td><td>High precision logging</td></tr>
+          <tr><td><code>CLOB</code></td><td>Character Large Object</td><td>Long text, XML</td></tr>
+          <tr><td><code>BLOB</code></td><td>Binary Large Object</td><td>Images, files</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="practice-section">
+      <h4>Practice Questions — SELECT</h4>
+      <ul class="checklist">
+        <li><input type="checkbox" id="p_sel_1" onchange="updateProgress()"><label for="p_sel_1"><strong>Q1:</strong> Write a query to get all employees whose last name ends with 'a' and salary is more than 60000.</label></li>
+        <li><input type="checkbox" id="p_sel_2" onchange="updateProgress()"><label for="p_sel_2"><strong>Q2:</strong> Show employee name and their annual bonus (15% of salary), ordered by bonus descending.</label></li>
+        <li><input type="checkbox" id="p_sel_3" onchange="updateProgress()"><label for="p_sel_3"><strong>Q3:</strong> Find all employees hired in the year 2023. (Hint: use EXTRACT(YEAR FROM hire_date))</label></li>
+      </ul>
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="c_sel_1" onchange="updateProgress()"><label for="c_sel_1">Comfortable with WHERE, AND/OR, BETWEEN, LIKE, IN, IS NULL</label></li>
+      <li><input type="checkbox" id="c_sel_2" onchange="updateProgress()"><label for="c_sel_2">Can use aliases, ORDER BY, DISTINCT</label></li>
+      <li><input type="checkbox" id="c_sel_3" onchange="updateProgress()"><label for="c_sel_3">Know key Oracle data types and NULL handling with NVL</label></li>
+    </ul>
+  </div>
+
+  <!-- JOINS -->
+  <div class="section" id="joins">
+    <div class="section-header">
+      <span class="section-num">1.4</span>
+      <div>
+        <h2>JOINs — Connecting Tables</h2>
+        <div class="section-sub">The most important concept in relational databases</div>
+      </div>
+    </div>
+
+    <div class="analogy-box">
+      <strong>🔗 Analogy</strong>
+      Imagine you have two lists: one is a list of employees (with dept_id) and another is a list of departments (with dept_id and dept_name). A JOIN is like a "zip" operation — it connects the two lists wherever dept_id matches, so you can see each employee's department name.
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-label">SQL — All JOIN Types</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="cmt">-- INNER JOIN: Only rows with matches in BOTH tables</span>
+<span class="kw">SELECT</span> e.first_name, e.salary, d.dept_name
+<span class="kw">FROM</span>   employees   e
+<span class="kw">JOIN</span>   departments d <span class="kw">ON</span> e.dept_id = d.dept_id;
+
+<span class="cmt">-- LEFT OUTER JOIN: All employees, even if no dept match</span>
+<span class="kw">SELECT</span> e.first_name, d.dept_name
+<span class="kw">FROM</span>   employees   e
+<span class="kw">LEFT JOIN</span> departments d <span class="kw">ON</span> e.dept_id = d.dept_id;
+<span class="cmt">-- Employees with no department get NULL for dept_name</span>
+
+<span class="cmt">-- RIGHT OUTER JOIN: All departments, even with no employees</span>
+<span class="kw">SELECT</span> e.first_name, d.dept_name
+<span class="kw">FROM</span>   employees   e
+<span class="kw">RIGHT JOIN</span> departments d <span class="kw">ON</span> e.dept_id = d.dept_id;
+
+<span class="cmt">-- FULL OUTER JOIN: Everything from both tables</span>
+<span class="kw">SELECT</span> e.first_name, d.dept_name
+<span class="kw">FROM</span>   employees   e
+<span class="kw">FULL OUTER JOIN</span> departments d <span class="kw">ON</span> e.dept_id = d.dept_id;
+
+<span class="cmt">-- SELF JOIN: Employee and their Manager (same table!)</span>
+<span class="kw">SELECT</span> e.first_name <span class="kw">AS</span> employee,
+       m.first_name <span class="kw">AS</span> manager
+<span class="kw">FROM</span>   employees e
+<span class="kw">JOIN</span>   employees m <span class="kw">ON</span> e.manager_id = m.emp_id;</pre>
+    </div>
+
+    <div class="concept-card">
+      <h3>JOIN Quick Reference</h3>
+      <table>
+        <thead><tr><th>JOIN Type</th><th>Returns</th><th>Unmatched rows?</th></tr></thead>
+        <tbody>
+          <tr><td>INNER JOIN</td><td>Only matching rows</td><td>❌ Excluded</td></tr>
+          <tr><td>LEFT JOIN</td><td>All left + matching right</td><td>Left: ✅ NULLs for right</td></tr>
+          <tr><td>RIGHT JOIN</td><td>All right + matching left</td><td>Right: ✅ NULLs for left</td></tr>
+          <tr><td>FULL OUTER JOIN</td><td>Everything from both</td><td>✅ NULLs both sides</td></tr>
+          <tr><td>CROSS JOIN</td><td>Every combo (cartesian)</td><td>N/A</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="interview-card">
+      <h4><span class="interview-badge">Interview Q</span> Classic Question</h4>
+      <p style="font-size:0.88rem;">"What is the difference between INNER JOIN and LEFT JOIN?"</p>
+      <div class="toggle-answer" onclick="toggleAns('join_int')">▶ Show Answer</div>
+      <div class="answer-content" id="join_int" style="font-size:0.87rem; color:var(--text);">
+        <strong>INNER JOIN</strong> returns only rows where there is a match in <em>both</em> tables. If an employee has no department, they are excluded. <br/><br/>
+        <strong>LEFT JOIN</strong> returns <em>all</em> rows from the left table (employees) plus matching rows from the right table. Employees without departments appear with NULL values for department columns. Use LEFT JOIN when you don't want to lose records from the primary (left) table.
+      </div>
+    </div>
+
+    <div class="practice-section">
+      <h4>Practice Questions — JOINs</h4>
+      <ul class="checklist">
+        <li><input type="checkbox" id="p_join_1" onchange="updateProgress()"><label for="p_join_1"><strong>Q1:</strong> List all employees with their department name. Include employees who have no department assigned.</label></li>
+        <li><input type="checkbox" id="p_join_2" onchange="updateProgress()"><label for="p_join_2"><strong>Q2:</strong> Find departments that have NO employees. (Hint: LEFT JOIN + IS NULL)</label></li>
+        <li><input type="checkbox" id="p_join_3" onchange="updateProgress()"><label for="p_join_3"><strong>Q3:</strong> Show employee name and their manager's name using a SELF JOIN.</label></li>
+      </ul>
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="c_join_1" onchange="updateProgress()"><label for="c_join_1">Can write INNER, LEFT, RIGHT, FULL OUTER JOINs confidently</label></li>
+      <li><input type="checkbox" id="c_join_2" onchange="updateProgress()"><label for="c_join_2">Understand when to use each JOIN type</label></li>
+      <li><input type="checkbox" id="c_join_3" onchange="updateProgress()"><label for="c_join_3">Can do SELF JOIN for hierarchical data</label></li>
+    </ul>
+  </div>
+
+  <!-- GROUP BY -->
+  <div class="section" id="groupby">
+    <div class="section-header">
+      <span class="section-num">1.5</span>
+      <div>
+        <h2>GROUP BY & Aggregate Functions</h2>
+        <div class="section-sub">Summarizing and analyzing data</div>
+      </div>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-label">SQL — Aggregations</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="cmt">-- Aggregate functions</span>
+<span class="kw">SELECT</span>
+    <span class="fn">COUNT</span>(*),               <span class="cmt">-- Total number of rows</span>
+    <span class="fn">COUNT</span>(salary),          <span class="cmt">-- Rows where salary is NOT NULL</span>
+    <span class="fn">SUM</span>(salary),            <span class="cmt">-- Total salary</span>
+    <span class="fn">AVG</span>(salary),            <span class="cmt">-- Average salary</span>
+    <span class="fn">MAX</span>(salary),            <span class="cmt">-- Highest salary</span>
+    <span class="fn">MIN</span>(salary)             <span class="cmt">-- Lowest salary</span>
+<span class="kw">FROM</span> employees;
+
+<span class="cmt">-- GROUP BY: Summarize per department</span>
+<span class="kw">SELECT</span>   dept_id,
+         <span class="fn">COUNT</span>(*) <span class="kw">AS</span> emp_count,
+         <span class="fn">AVG</span>(salary) <span class="kw">AS</span> avg_salary,
+         <span class="fn">MAX</span>(salary) <span class="kw">AS</span> max_salary
+<span class="kw">FROM</span>     employees
+<span class="kw">GROUP BY</span> dept_id
+<span class="kw">ORDER BY</span> avg_salary <span class="kw">DESC</span>;
+
+<span class="cmt">-- HAVING: Filter groups (like WHERE but for aggregates)</span>
+<span class="kw">SELECT</span>   dept_id,
+         <span class="fn">AVG</span>(salary) <span class="kw">AS</span> avg_sal
+<span class="kw">FROM</span>     employees
+<span class="kw">GROUP BY</span> dept_id
+<span class="kw">HAVING</span>   <span class="fn">AVG</span>(salary) > <span class="num">70000</span>;   <span class="cmt">-- Only depts where avg > 70k</span>
+
+<span class="cmt">-- ROLLUP: Subtotals + grand total</span>
+<span class="kw">SELECT</span>   dept_id, <span class="fn">SUM</span>(salary)
+<span class="kw">FROM</span>     employees
+<span class="kw">GROUP BY</span> <span class="fn">ROLLUP</span>(dept_id);</pre>
+    </div>
+
+    <div class="tip-box">
+      <strong>💡 Key Rule</strong>
+      Every column in SELECT must either be inside an aggregate function (SUM, COUNT, etc.) OR listed in the GROUP BY clause. This is one of the most common beginner mistakes.
+    </div>
+
+    <div class="practice-section">
+      <h4>Practice Questions — GROUP BY</h4>
+      <ul class="checklist">
+        <li><input type="checkbox" id="p_grp_1" onchange="updateProgress()"><label for="p_grp_1"><strong>Q1:</strong> Find the total payroll cost per department, but only show departments where total payroll exceeds 200,000.</label></li>
+        <li><input type="checkbox" id="p_grp_2" onchange="updateProgress()"><label for="p_grp_2"><strong>Q2:</strong> Find how many employees were hired each year (group by EXTRACT(YEAR FROM hire_date)).</label></li>
+        <li><input type="checkbox" id="p_grp_3" onchange="updateProgress()"><label for="p_grp_3"><strong>Q3:</strong> What's the difference between WHERE and HAVING? Give an example of each.</label></li>
+      </ul>
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="c_grp_1" onchange="updateProgress()"><label for="c_grp_1">Can use COUNT, SUM, AVG, MAX, MIN</label></li>
+      <li><input type="checkbox" id="c_grp_2" onchange="updateProgress()"><label for="c_grp_2">Understand GROUP BY rules (columns must match)</label></li>
+      <li><input type="checkbox" id="c_grp_3" onchange="updateProgress()"><label for="c_grp_3">Know when to use HAVING vs WHERE</label></li>
+    </ul>
+  </div>
+
+  <!-- SUBQUERIES -->
+  <div class="section" id="subqueries">
+    <div class="section-header">
+      <span class="section-num">1.6</span>
+      <div>
+        <h2>Subqueries & CTEs</h2>
+        <div class="section-sub">Queries inside queries — the power tool</div>
+      </div>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-label">SQL — Subqueries & WITH clause</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="cmt">-- Scalar subquery: returns a single value</span>
+<span class="kw">SELECT</span> first_name, salary
+<span class="kw">FROM</span>   employees
+<span class="kw">WHERE</span>  salary > (<span class="kw">SELECT</span> <span class="fn">AVG</span>(salary) <span class="kw">FROM</span> employees);
+
+<span class="cmt">-- Subquery in FROM clause (inline view)</span>
+<span class="kw">SELECT</span> dept_id, avg_sal
+<span class="kw">FROM</span>   (
+    <span class="kw">SELECT</span>   dept_id, <span class="fn">AVG</span>(salary) <span class="kw">AS</span> avg_sal
+    <span class="kw">FROM</span>     employees
+    <span class="kw">GROUP BY</span> dept_id
+) dept_stats
+<span class="kw">WHERE</span> avg_sal > <span class="num">65000</span>;
+
+<span class="cmt">-- EXISTS: Check if a related record exists</span>
+<span class="kw">SELECT</span> dept_name
+<span class="kw">FROM</span>   departments d
+<span class="kw">WHERE</span>  <span class="kw">EXISTS</span> (
+    <span class="kw">SELECT</span> <span class="num">1</span>
+    <span class="kw">FROM</span>   employees e
+    <span class="kw">WHERE</span>  e.dept_id = d.dept_id
+);
+
+<span class="cmt">-- CTE (Common Table Expression) — Cleaner than subqueries</span>
+<span class="kw">WITH</span> high_earners <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> emp_id, first_name, salary, dept_id
+    <span class="kw">FROM</span>   employees
+    <span class="kw">WHERE</span>  salary > <span class="num">80000</span>
+)
+<span class="kw">SELECT</span> h.first_name, d.dept_name
+<span class="kw">FROM</span>   high_earners h
+<span class="kw">JOIN</span>   departments  d <span class="kw">ON</span> h.dept_id = d.dept_id;</pre>
+    </div>
+
+    <div class="practice-section">
+      <h4>Practice Questions — Subqueries</h4>
+      <ul class="checklist">
+        <li><input type="checkbox" id="p_sub_1" onchange="updateProgress()"><label for="p_sub_1"><strong>Q1:</strong> Find the employee(s) with the highest salary in each department using a subquery.</label></li>
+        <li><input type="checkbox" id="p_sub_2" onchange="updateProgress()"><label for="p_sub_2"><strong>Q2:</strong> Rewrite Q1 using a CTE. Which approach is more readable?</label></li>
+        <li><input type="checkbox" id="p_sub_3" onchange="updateProgress()"><label for="p_sub_3"><strong>Q3:</strong> Find employees who earn more than ALL employees in department 20.</label></li>
+      </ul>
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="c_sub_1" onchange="updateProgress()"><label for="c_sub_1">Can write scalar, inline-view, and correlated subqueries</label></li>
+      <li><input type="checkbox" id="c_sub_2" onchange="updateProgress()"><label for="c_sub_2">Know how to use EXISTS and NOT EXISTS</label></li>
+      <li><input type="checkbox" id="c_sub_3" onchange="updateProgress()"><label for="c_sub_3">Can write CTEs using the WITH clause</label></li>
+    </ul>
+  </div>
+
+  <!-- ══════════════════ MODULE 2: PL/SQL FOUNDATIONS ══════════════════ -->
+
+  <div class="section" id="plsql-intro">
+    <div class="section-header">
+      <span class="section-num">2.1</span>
+      <div>
+        <h2>What is PL/SQL?</h2>
+        <div class="section-sub">Oracle's procedural extension to SQL</div>
+      </div>
+    </div>
+
+    <div class="analogy-box">
+      <strong>🏭 Analogy</strong>
+      If SQL is like sending individual orders to a factory ("make this", "ship that"), PL/SQL is like giving the factory a complete <em>production manual</em> — "if inventory is low, order more; if the order is urgent, prioritize it; for each item in the list, do this process." It's the difference between one instruction and a whole program.
+    </div>
+
+    <div class="concept-card">
+      <h3>Why PL/SQL over plain SQL?</h3>
+      <ul>
+        <li>✅ Add conditional logic (IF/THEN/ELSE) to database operations</li>
+        <li>✅ Loop over result sets without fetching to application layer</li>
+        <li>✅ Handle errors gracefully with exception blocks</li>
+        <li>✅ Bundle logic into reusable stored procedures & functions</li>
+        <li>✅ Dramatically reduces network round-trips (performance)</li>
+        <li>✅ Business logic lives in the database — secure and centralized</li>
+      </ul>
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="c_pi_1" onchange="updateProgress()"><label for="c_pi_1">Understand when to choose PL/SQL over application-layer code</label></li>
+      <li><input type="checkbox" id="c_pi_2" onchange="updateProgress()"><label for="c_pi_2">Know PL/SQL is Oracle-specific (PostgreSQL has PL/pgSQL, MySQL has its own)</label></li>
+    </ul>
+  </div>
+
+  <!-- BLOCK STRUCTURE -->
+  <div class="section" id="block">
+    <div class="section-header">
+      <span class="section-num">2.2</span>
+      <div>
+        <h2>PL/SQL Block Structure</h2>
+        <div class="section-sub">The DNA of every PL/SQL program</div>
+      </div>
+    </div>
+
+    <div class="analogy-box">
+      <strong>📋 Analogy</strong>
+      A PL/SQL block is like a recipe card. It has: a <strong>DECLARE</strong> section (list your ingredients), a <strong>BEGIN</strong> section (the actual cooking steps), and an <strong>EXCEPTION</strong> section (what to do if something goes wrong — e.g., "if we're out of eggs, substitute with flax").
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-label">PL/SQL — Block Structure</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="cmt">/*  PL/SQL Block Anatomy
+    ┌─────────────────────────────────┐
+    │  DECLARE  (optional)            │  ← Variables, constants, types
+    │  BEGIN    (mandatory)           │  ← Your logic goes here
+    │  EXCEPTION (optional)           │  ← Error handling
+    │  END;     (mandatory)           │
+    └─────────────────────────────────┘ */</span>
+
+<span class="kw">DECLARE</span>
+    <span class="cmt">-- Variable declarations</span>
+    <span class="var">v_emp_name</span>   <span class="type">VARCHAR2</span>(<span class="num">100</span>);
+    <span class="var">v_salary</span>     <span class="type">NUMBER</span>(<span class="num">10</span>, <span class="num">2</span>) := <span class="num">0</span>;   <span class="cmt">-- := is assignment in PL/SQL</span>
+    <span class="var">v_message</span>    <span class="type">VARCHAR2</span>(<span class="num">200</span>) := <span class="str">'Hello, PL/SQL!'</span>;
+    <span class="var">c_max_sal</span>    <span class="kw">CONSTANT</span> <span class="type">NUMBER</span> := <span class="num">200000</span>;  <span class="cmt">-- Cannot be changed</span>
+
+<span class="kw">BEGIN</span>
+    <span class="cmt">-- Retrieve a value from the DB into a variable</span>
+    <span class="kw">SELECT</span> first_name || <span class="str">' '</span> || last_name, salary
+    <span class="kw">INTO</span>   <span class="var">v_emp_name</span>, <span class="var">v_salary</span>
+    <span class="kw">FROM</span>   employees
+    <span class="kw">WHERE</span>  emp_id = <span class="num">1</span>;
+
+    <span class="cmt">-- Print output (visible in SQL Developer output pane)</span>
+    <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'Employee: '</span> || <span class="var">v_emp_name</span>);
+    <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'Salary:   '</span> || <span class="var">v_salary</span>);
+
+<span class="kw">EXCEPTION</span>
+    <span class="kw">WHEN</span> NO_DATA_FOUND <span class="kw">THEN</span>
+        <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'No employee found!'</span>);
+    <span class="kw">WHEN</span> OTHERS <span class="kw">THEN</span>
+        <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'Error: '</span> || <span class="fn">SQLERRM</span>);
+<span class="kw">END</span>;
+<span class="kw">/</span>  <span class="cmt">-- The / runs the block in SQL*Plus / SQL Developer</span></pre>
+    </div>
+
+    <div class="tip-box">
+      <strong>💡 Enable Output</strong>
+      Before running PL/SQL blocks, run: <code style="font-family:'JetBrains Mono',monospace; color:var(--accent2);">SET SERVEROUTPUT ON;</code> — otherwise DBMS_OUTPUT.PUT_LINE won't show anything!
+    </div>
+
+    <div class="concept-card">
+      <h3>SELECT INTO — The core way to read data in PL/SQL</h3>
+      <p>In PL/SQL, you can't just SELECT freely. You must store the result in variables using <strong>INTO</strong>. This requires the query to return <em>exactly one row</em> — if it returns zero or more than one, Oracle throws an exception.</p>
+    </div>
+
+    <div class="practice-section">
+      <h4>Practice Questions — Block Structure</h4>
+      <ul class="checklist">
+        <li><input type="checkbox" id="p_blk_1" onchange="updateProgress()"><label for="p_blk_1"><strong>Q1:</strong> Write a PL/SQL block that retrieves the department name for dept_id=10 and prints it.</label></li>
+        <li><input type="checkbox" id="p_blk_2" onchange="updateProgress()"><label for="p_blk_2"><strong>Q2:</strong> Declare a variable to hold today's date and print "Today is: [date]".</label></li>
+        <li><input type="checkbox" id="p_blk_3" onchange="updateProgress()"><label for="p_blk_3"><strong>Q3:</strong> What happens if your SELECT INTO query returns more than 1 row? Test it!</label></li>
+      </ul>
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="c_blk_1" onchange="updateProgress()"><label for="c_blk_1">Know the DECLARE / BEGIN / EXCEPTION / END structure</label></li>
+      <li><input type="checkbox" id="c_blk_2" onchange="updateProgress()"><label for="c_blk_2">Can declare variables and use := for assignment</label></li>
+      <li><input type="checkbox" id="c_blk_3" onchange="updateProgress()"><label for="c_blk_3">Can use SELECT INTO and DBMS_OUTPUT.PUT_LINE</label></li>
+    </ul>
+  </div>
+
+  <!-- VARIABLES -->
+  <div class="section" id="variables">
+    <div class="section-header">
+      <span class="section-num">2.3</span>
+      <div>
+        <h2>Variables, Types & %TYPE / %ROWTYPE</h2>
+        <div class="section-sub">Anchored declarations — the smart way to declare</div>
+      </div>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-label">PL/SQL — Variables & Anchored Types</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">DECLARE</span>
+    <span class="cmt">-- Regular declarations</span>
+    <span class="var">v_name</span>    <span class="type">VARCHAR2</span>(<span class="num">50</span>)   := <span class="str">'Oracle'</span>;
+    <span class="var">v_count</span>   <span class="type">NUMBER</span>          := <span class="num">0</span>;
+    <span class="var">v_flag</span>    <span class="type">BOOLEAN</span>         := <span class="kw">TRUE</span>;
+
+    <span class="cmt">-- %TYPE: Variable inherits the exact type of a table column
+    -- ADVANTAGE: If column type changes, your code auto-adapts!</span>
+    <span class="var">v_sal</span>     employees.salary%<span class="kw">TYPE</span>;
+    <span class="var">v_fname</span>   employees.first_name%<span class="kw">TYPE</span>;
+
+    <span class="cmt">-- %ROWTYPE: Variable holds an entire table row</span>
+    <span class="var">v_emp</span>     employees%<span class="kw">ROWTYPE</span>;
+
+<span class="kw">BEGIN</span>
+    <span class="cmt">-- Using %TYPE</span>
+    <span class="kw">SELECT</span> first_name, salary
+    <span class="kw">INTO</span>   <span class="var">v_fname</span>, <span class="var">v_sal</span>
+    <span class="kw">FROM</span>   employees
+    <span class="kw">WHERE</span>  emp_id = <span class="num">1</span>;
+
+    <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="var">v_fname</span> || <span class="str">' earns '</span> || <span class="var">v_sal</span>);
+
+    <span class="cmt">-- Using %ROWTYPE (fetch entire row)</span>
+    <span class="kw">SELECT</span> * <span class="kw">INTO</span> <span class="var">v_emp</span>
+    <span class="kw">FROM</span>   employees
+    <span class="kw">WHERE</span>  emp_id = <span class="num">1</span>;
+
+    <span class="cmt">-- Access individual columns using dot notation</span>
+    <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="var">v_emp</span>.first_name || <span class="str">' - Dept: '</span> || <span class="var">v_emp</span>.dept_id);
+
+<span class="kw">END</span>;
+<span class="kw">/</span></pre>
+    </div>
+
+    <div class="tip-box">
+      <strong>💡 Best Practice</strong>
+      Always prefer <code style="font-family:'JetBrains Mono',monospace; color:var(--accent2);">%TYPE</code> and <code style="font-family:'JetBrains Mono',monospace; color:var(--accent2);">%ROWTYPE</code> over hardcoded data types. If the DBA changes a column from VARCHAR2(50) to VARCHAR2(100), your code won't break and won't need to be redeployed.
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="c_var_1" onchange="updateProgress()"><label for="c_var_1">Understand %TYPE and %ROWTYPE anchored declarations</label></li>
+      <li><input type="checkbox" id="c_var_2" onchange="updateProgress()"><label for="c_var_2">Know BOOLEAN, NUMBER, VARCHAR2, DATE variable types</label></li>
+      <li><input type="checkbox" id="c_var_3" onchange="updateProgress()"><label for="c_var_3">Can access %ROWTYPE fields with dot notation</label></li>
+    </ul>
+  </div>
+
+  <!-- CONTROL STRUCTURES -->
+  <div class="section" id="control">
+    <div class="section-header">
+      <span class="section-num">2.4</span>
+      <div>
+        <h2>Control Structures</h2>
+        <div class="section-sub">IF/THEN/ELSE and CASE — making decisions in code</div>
+      </div>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-label">PL/SQL — IF/ELSIF/ELSE and CASE</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">DECLARE</span>
+    <span class="var">v_salary</span>  employees.salary%<span class="kw">TYPE</span>;
+    <span class="var">v_grade</span>   <span class="type">VARCHAR2</span>(<span class="num">10</span>);
+    <span class="var">v_emp_id</span>  <span class="type">NUMBER</span> := <span class="num">1</span>;
+
+<span class="kw">BEGIN</span>
+    <span class="kw">SELECT</span> salary <span class="kw">INTO</span> <span class="var">v_salary</span>
+    <span class="kw">FROM</span>   employees
+    <span class="kw">WHERE</span>  emp_id = <span class="var">v_emp_id</span>;
+
+    <span class="cmt">-- IF / ELSIF / ELSE</span>
+    <span class="kw">IF</span>    <span class="var">v_salary</span> >= <span class="num">100000</span> <span class="kw">THEN</span>
+        <span class="var">v_grade</span> := <span class="str">'A'</span>;
+    <span class="kw">ELSIF</span> <span class="var">v_salary</span> >= <span class="num">70000</span>  <span class="kw">THEN</span>
+        <span class="var">v_grade</span> := <span class="str">'B'</span>;
+    <span class="kw">ELSIF</span> <span class="var">v_salary</span> >= <span class="num">50000</span>  <span class="kw">THEN</span>
+        <span class="var">v_grade</span> := <span class="str">'C'</span>;
+    <span class="kw">ELSE</span>
+        <span class="var">v_grade</span> := <span class="str">'D'</span>;
+    <span class="kw">END IF</span>;
+
+    <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'Salary Grade: '</span> || <span class="var">v_grade</span>);
+
+    <span class="cmt">-- CASE expression (cleaner for multiple values)</span>
+    <span class="var">v_grade</span> := <span class="kw">CASE</span>
+        <span class="kw">WHEN</span> <span class="var">v_salary</span> >= <span class="num">100000</span> <span class="kw">THEN</span> <span class="str">'A - Executive'</span>
+        <span class="kw">WHEN</span> <span class="var">v_salary</span> >= <span class="num">70000</span>  <span class="kw">THEN</span> <span class="str">'B - Senior'</span>
+        <span class="kw">WHEN</span> <span class="var">v_salary</span> >= <span class="num">50000</span>  <span class="kw">THEN</span> <span class="str">'C - Mid-level'</span>
+        <span class="kw">ELSE</span>                          <span class="str">'D - Junior'</span>
+    <span class="kw">END</span>;
+
+    <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'Level: '</span> || <span class="var">v_grade</span>);
+
+<span class="kw">END</span>;
+<span class="kw">/</span></pre>
+    </div>
+
+    <div class="practice-section">
+      <h4>Practice Questions — Control Structures</h4>
+      <ul class="checklist">
+        <li><input type="checkbox" id="p_ctrl_1" onchange="updateProgress()"><label for="p_ctrl_1"><strong>Q1:</strong> Write a block that classifies an employee's bonus: 20% if grade A, 15% if B, 10% if C, 5% otherwise. Print the bonus amount.</label></li>
+        <li><input type="checkbox" id="p_ctrl_2" onchange="updateProgress()"><label for="p_ctrl_2"><strong>Q2:</strong> Note that PL/SQL uses ELSIF (not ELSEIF). What happens if you use ELSEIF by mistake?</label></li>
+      </ul>
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="c_ctrl_1" onchange="updateProgress()"><label for="c_ctrl_1">Can write IF / ELSIF / ELSE blocks correctly</label></li>
+      <li><input type="checkbox" id="c_ctrl_2" onchange="updateProgress()"><label for="c_ctrl_2">Can use CASE expressions for cleaner multi-branch logic</label></li>
+    </ul>
+  </div>
+
+  <!-- LOOPS -->
+  <div class="section" id="loops">
+    <div class="section-header">
+      <span class="section-num">2.5</span>
+      <div>
+        <h2>Loops</h2>
+        <div class="section-sub">LOOP, WHILE, FOR — iterating in PL/SQL</div>
+      </div>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-label">PL/SQL — All Loop Types</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">DECLARE</span>
+    <span class="var">v_count</span>  <span class="type">NUMBER</span> := <span class="num">1</span>;
+    <span class="var">v_sum</span>    <span class="type">NUMBER</span> := <span class="num">0</span>;
+
+<span class="kw">BEGIN</span>
+    <span class="cmt">-- 1. Basic LOOP (manually EXIT)</span>
+    <span class="kw">LOOP</span>
+        <span class="var">v_sum</span> := <span class="var">v_sum</span> + <span class="var">v_count</span>;
+        <span class="var">v_count</span> := <span class="var">v_count</span> + <span class="num">1</span>;
+        <span class="kw">EXIT WHEN</span> <span class="var">v_count</span> > <span class="num">10</span>;    <span class="cmt">-- Must have an exit condition!</span>
+    <span class="kw">END LOOP</span>;
+    <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'Sum 1-10 = '</span> || <span class="var">v_sum</span>);
+
+    <span class="cmt">-- 2. WHILE LOOP (check condition before each iteration)</span>
+    <span class="var">v_count</span> := <span class="num">1</span>;
+    <span class="var">v_sum</span>   := <span class="num">0</span>;
+    <span class="kw">WHILE</span> <span class="var">v_count</span> <= <span class="num">10</span> <span class="kw">LOOP</span>
+        <span class="var">v_sum</span>   := <span class="var">v_sum</span> + <span class="var">v_count</span>;
+        <span class="var">v_count</span> := <span class="var">v_count</span> + <span class="num">1</span>;
+    <span class="kw">END LOOP</span>;
+
+    <span class="cmt">-- 3. FOR LOOP (fixed range — most common)</span>
+    <span class="var">v_sum</span> := <span class="num">0</span>;
+    <span class="kw">FOR</span> <span class="var">i</span> <span class="kw">IN</span> <span class="num">1</span>..<span class="num">10</span> <span class="kw">LOOP</span>      <span class="cmt">-- i is auto-declared, no DECLARE needed</span>
+        <span class="var">v_sum</span> := <span class="var">v_sum</span> + <span class="var">i</span>;
+    <span class="kw">END LOOP</span>;
+
+    <span class="cmt">-- 4. REVERSE FOR LOOP</span>
+    <span class="kw">FOR</span> <span class="var">i</span> <span class="kw">IN REVERSE</span> <span class="num">1</span>..<span class="num">5</span> <span class="kw">LOOP</span>
+        <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'Count: '</span> || <span class="var">i</span>);   <span class="cmt">-- Prints 5,4,3,2,1</span>
+    <span class="kw">END LOOP</span>;
+
+<span class="kw">END</span>;
+<span class="kw">/</span></pre>
+    </div>
+
+    <div class="practice-section">
+      <h4>Practice Questions — Loops</h4>
+      <ul class="checklist">
+        <li><input type="checkbox" id="p_loop_1" onchange="updateProgress()"><label for="p_loop_1"><strong>Q1:</strong> Print the multiplication table for 7 using a FOR loop (7×1=7, 7×2=14 ...).</label></li>
+        <li><input type="checkbox" id="p_loop_2" onchange="updateProgress()"><label for="p_loop_2"><strong>Q2:</strong> Use a WHILE loop to find the first number N where N! (factorial) exceeds 1,000,000.</label></li>
+        <li><input type="checkbox" id="p_loop_3" onchange="updateProgress()"><label for="p_loop_3"><strong>Q3:</strong> What is the risk of using a basic LOOP without EXIT WHEN? How does it differ from a WHILE loop?</label></li>
+      </ul>
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="c_loop_1" onchange="updateProgress()"><label for="c_loop_1">Can write LOOP, WHILE, and FOR loops</label></li>
+      <li><input type="checkbox" id="c_loop_2" onchange="updateProgress()"><label for="c_loop_2">Know when to use each loop type</label></li>
+      <li><input type="checkbox" id="c_loop_3" onchange="updateProgress()"><label for="c_loop_3">Understand EXIT WHEN and CONTINUE statements</label></li>
+    </ul>
+  </div>
+
+  <!-- ══════════════════ MODULE 3: ADVANCED PL/SQL ══════════════════ -->
+
+  <!-- CURSORS -->
+  <div class="section" id="cursors">
+    <div class="section-header">
+      <span class="section-num">3.1</span>
+      <div>
+        <h2>Cursors</h2>
+        <div class="section-sub">Processing multiple rows one at a time</div>
+      </div>
+    </div>
+
+    <div class="analogy-box">
+      <strong>☕ Analogy</strong>
+      A cursor is like a <strong>reading pointer</strong> on a spreadsheet. Your SELECT query returns many rows, and the cursor lets you point to one row at a time, read it, process it, then move to the next. Think of it like reading a book page by page, rather than trying to read all pages at once.
+    </div>
+
+    <div class="concept-card">
+      <h3>Implicit vs Explicit Cursors</h3>
+      <ul>
+        <li><strong>Implicit Cursor:</strong> Auto-created by Oracle for any DML statement (INSERT/UPDATE/DELETE/SELECT INTO). Access via SQL%ROWCOUNT, SQL%FOUND, SQL%NOTFOUND</li>
+        <li><strong>Explicit Cursor:</strong> Manually declared and controlled when you need to process multiple rows</li>
+      </ul>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-label">PL/SQL — Cursors (All Styles)</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="cmt">-- ─── STYLE 1: Cursor FOR Loop (RECOMMENDED — simplest) ───</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">FOR</span> <span class="var">emp_rec</span> <span class="kw">IN</span> (<span class="kw">SELECT</span> first_name, salary, dept_id
+                   <span class="kw">FROM</span>   employees
+                   <span class="kw">WHERE</span>  dept_id = <span class="num">10</span>)
+    <span class="kw">LOOP</span>
+        <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(
+            <span class="var">emp_rec</span>.first_name || <span class="str">' → $'</span> || <span class="var">emp_rec</span>.salary
+        );
+    <span class="kw">END LOOP</span>;  <span class="cmt">-- Cursor auto-opened and closed!</span>
+<span class="kw">END</span>;
+<span class="kw">/</span>
+
+<span class="cmt">-- ─── STYLE 2: Explicit Cursor (full control) ───</span>
+<span class="kw">DECLARE</span>
+    <span class="cmt">-- Step 1: Declare the cursor</span>
+    <span class="kw">CURSOR</span> <span class="var">c_emp</span> <span class="kw">IS</span>
+        <span class="kw">SELECT</span> emp_id, first_name, salary
+        <span class="kw">FROM</span>   employees
+        <span class="kw">WHERE</span>  salary > <span class="num">60000</span>
+        <span class="kw">ORDER BY</span> salary <span class="kw">DESC</span>;
+
+    <span class="var">v_emp</span>  <span class="var">c_emp</span>%<span class="kw">ROWTYPE</span>;   <span class="cmt">-- Row variable matching cursor columns</span>
+
+<span class="kw">BEGIN</span>
+    <span class="kw">OPEN</span>  <span class="var">c_emp</span>;               <span class="cmt">-- Step 2: Execute the query</span>
+    <span class="kw">LOOP</span>
+        <span class="kw">FETCH</span> <span class="var">c_emp</span> <span class="kw">INTO</span> <span class="var">v_emp</span>; <span class="cmt">-- Step 3: Get next row</span>
+        <span class="kw">EXIT WHEN</span> <span class="var">c_emp</span>%NOTFOUND;  <span class="cmt">-- Stop when no more rows</span>
+
+        <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(
+            <span class="var">v_emp</span>.first_name || <span class="str">' earns '</span> || <span class="var">v_emp</span>.salary
+        );
+    <span class="kw">END LOOP</span>;
+    <span class="kw">CLOSE</span> <span class="var">c_emp</span>;               <span class="cmt">-- Step 4: ALWAYS close!</span>
+<span class="kw">END</span>;
+<span class="kw">/</span>
+
+<span class="cmt">-- ─── STYLE 3: Parameterized Cursor (reusable) ───</span>
+<span class="kw">DECLARE</span>
+    <span class="kw">CURSOR</span> <span class="var">c_dept_emp</span> (<span class="var">p_dept_id</span> <span class="type">NUMBER</span>) <span class="kw">IS</span>
+        <span class="kw">SELECT</span> first_name, salary
+        <span class="kw">FROM</span>   employees
+        <span class="kw">WHERE</span>  dept_id = <span class="var">p_dept_id</span>;
+<span class="kw">BEGIN</span>
+    <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'── Dept 10 ──'</span>);
+    <span class="kw">FOR</span> <span class="var">r</span> <span class="kw">IN</span> <span class="var">c_dept_emp</span>(<span class="num">10</span>) <span class="kw">LOOP</span>
+        <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="var">r</span>.first_name || <span class="str">' - '</span> || <span class="var">r</span>.salary);
+    <span class="kw">END LOOP</span>;
+
+    <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'── Dept 20 ──'</span>);
+    <span class="kw">FOR</span> <span class="var">r</span> <span class="kw">IN</span> <span class="var">c_dept_emp</span>(<span class="num">20</span>) <span class="kw">LOOP</span>
+        <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="var">r</span>.first_name || <span class="str">' - '</span> || <span class="var">r</span>.salary);
+    <span class="kw">END LOOP</span>;
+<span class="kw">END</span>;
+<span class="kw">/</span></pre>
+    </div>
+
+    <div class="tip-box">
+      <strong>💡 Performance Tip</strong>
+      Prefer the <strong>Cursor FOR Loop</strong> (Style 1) for most cases — Oracle optimizes it internally. Explicit cursors are needed when you require finer control (e.g., UPDATE with WHERE CURRENT OF).
+    </div>
+
+    <div class="interview-card">
+      <h4><span class="interview-badge">Interview Q</span> Frequently Asked</h4>
+      <p style="font-size:0.88rem;">"What is the difference between implicit and explicit cursors? When would you choose one over the other?"</p>
+      <div class="toggle-answer" onclick="toggleAns('cur_int')">▶ Show Answer</div>
+      <div class="answer-content" id="cur_int" style="font-size:0.87rem; color:var(--text);">
+        <strong>Implicit cursors</strong> are automatically created by Oracle for every DML statement and SELECT INTO. You access them via SQL%FOUND, SQL%ROWCOUNT etc. They're fine for single-row operations.<br/><br/>
+        <strong>Explicit cursors</strong> are manually declared and used when your query returns multiple rows that need to be processed row-by-row. You have full control: OPEN, FETCH, CLOSE.<br/><br/>
+        <strong>Choose explicit</strong> when: processing multiple rows, needing cursor attributes (%NOTFOUND, %ROWCOUNT), doing parameterized queries, or using FOR UPDATE / WHERE CURRENT OF for row-level locking.
+      </div>
+    </div>
+
+    <div class="practice-section">
+      <h4>Practice Questions — Cursors</h4>
+      <ul class="checklist">
+        <li><input type="checkbox" id="p_cur_1" onchange="updateProgress()"><label for="p_cur_1"><strong>Q1:</strong> Using a cursor FOR loop, print all employees and give them a 10% raise if they earn less than 60000.</label></li>
+        <li><input type="checkbox" id="p_cur_2" onchange="updateProgress()"><label for="p_cur_2"><strong>Q2:</strong> Write an explicit cursor that fetches the top 5 highest-paid employees.</label></li>
+        <li><input type="checkbox" id="p_cur_3" onchange="updateProgress()"><label for="p_cur_3"><strong>Q3:</strong> What happens if you FETCH from a closed cursor? What exception does it raise?</label></li>
+      </ul>
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="c_cur_1" onchange="updateProgress()"><label for="c_cur_1">Can write Cursor FOR loops (inline query style)</label></li>
+      <li><input type="checkbox" id="c_cur_2" onchange="updateProgress()"><label for="c_cur_2">Can DECLARE, OPEN, FETCH, CLOSE explicit cursors</label></li>
+      <li><input type="checkbox" id="c_cur_3" onchange="updateProgress()"><label for="c_cur_3">Understand cursor attributes (%FOUND, %NOTFOUND, %ROWCOUNT, %ISOPEN)</label></li>
+      <li><input type="checkbox" id="c_cur_4" onchange="updateProgress()"><label for="c_cur_4">Can write parameterized cursors</label></li>
+    </ul>
+  </div>
+
+  <!-- EXCEPTION HANDLING -->
+  <div class="section" id="exceptions">
+    <div class="section-header">
+      <span class="section-num">3.2</span>
+      <div>
+        <h2>Exception Handling</h2>
+        <div class="section-sub">Graceful error management — what separates pros from beginners</div>
+      </div>
+    </div>
+
+    <div class="analogy-box">
+      <strong>🛡️ Analogy</strong>
+      Exception handling is like an airbag in a car. In normal driving (BEGIN block), the airbag is inactive. When a crash happens (an error occurs), the airbag deploys (EXCEPTION block runs). Without it, the crash is fatal to your program. With it, you survive and can handle the situation gracefully.
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-label">PL/SQL — Exception Handling</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">DECLARE</span>
+    <span class="var">v_emp</span>    employees%<span class="kw">ROWTYPE</span>;
+    <span class="var">v_empid</span>  <span class="type">NUMBER</span> := <span class="num">999</span>;   <span class="cmt">-- Non-existent ID</span>
+
+    <span class="cmt">-- User-defined exception</span>
+    <span class="var">e_low_salary</span>  <span class="kw">EXCEPTION</span>;
+    <span class="var">v_salary</span>      <span class="type">NUMBER</span>;
+
+<span class="kw">BEGIN</span>
+    <span class="cmt">-- This will raise NO_DATA_FOUND</span>
+    <span class="kw">SELECT</span> * <span class="kw">INTO</span> <span class="var">v_emp</span>
+    <span class="kw">FROM</span>   employees
+    <span class="kw">WHERE</span>  emp_id = <span class="var">v_empid</span>;
+
+    <span class="cmt">-- Manually RAISE user-defined exception</span>
+    <span class="var">v_salary</span> := <span class="num">25000</span>;
+    <span class="kw">IF</span> <span class="var">v_salary</span> < <span class="num">30000</span> <span class="kw">THEN</span>
+        <span class="kw">RAISE</span> <span class="var">e_low_salary</span>;
+    <span class="kw">END IF</span>;
+
+<span class="kw">EXCEPTION</span>
+    <span class="kw">WHEN</span> NO_DATA_FOUND <span class="kw">THEN</span>
+        <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'❌ Employee ID '</span> || <span class="var">v_empid</span> || <span class="str">' not found.'</span>);
+
+    <span class="kw">WHEN</span> TOO_MANY_ROWS <span class="kw">THEN</span>
+        <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'❌ Query returned more than 1 row!'</span>);
+
+    <span class="kw">WHEN</span> <span class="var">e_low_salary</span> <span class="kw">THEN</span>
+        <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'❌ Salary too low: '</span> || <span class="var">v_salary</span>);
+
+    <span class="kw">WHEN</span> OTHERS <span class="kw">THEN</span>
+        <span class="cmt">-- SQLCODE: Oracle error number (negative)
+        -- SQLERRM: Error message text</span>
+        <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'❌ Error: '</span> || <span class="fn">SQLCODE</span> || <span class="str">' - '</span> || <span class="fn">SQLERRM</span>);
+        <span class="kw">RAISE</span>;   <span class="cmt">-- Re-raise to propagate upward</span>
+<span class="kw">END</span>;
+<span class="kw">/</span></pre>
+    </div>
+
+    <div class="concept-card">
+      <h3>Named System Exceptions Cheat Sheet</h3>
+      <table>
+        <thead><tr><th>Exception Name</th><th>Oracle Error</th><th>When it happens</th></tr></thead>
+        <tbody>
+          <tr><td>NO_DATA_FOUND</td><td>ORA-01403</td><td>SELECT INTO returns 0 rows</td></tr>
+          <tr><td>TOO_MANY_ROWS</td><td>ORA-01422</td><td>SELECT INTO returns &gt;1 row</td></tr>
+          <tr><td>ZERO_DIVIDE</td><td>ORA-01476</td><td>Division by zero</td></tr>
+          <tr><td>DUP_VAL_ON_INDEX</td><td>ORA-00001</td><td>Unique constraint violated</td></tr>
+          <tr><td>VALUE_ERROR</td><td>ORA-06502</td><td>Type/size mismatch</td></tr>
+          <tr><td>INVALID_CURSOR</td><td>ORA-01001</td><td>Cursor operation on closed cursor</td></tr>
+          <tr><td>CURSOR_ALREADY_OPEN</td><td>ORA-06511</td><td>OPEN on already-open cursor</td></tr>
+          <tr><td>OTHERS</td><td>All others</td><td>Catch-all handler</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="warn-box">
+      <strong>⚠️ Anti-Pattern</strong>
+      Never use just <code style="font-family:'JetBrains Mono',monospace;">WHEN OTHERS THEN NULL;</code> — this silently swallows ALL errors and makes debugging impossible. Always log the error with SQLCODE/SQLERRM or re-raise.
+    </div>
+
+    <div class="practice-section">
+      <h4>Practice Questions — Exceptions</h4>
+      <ul class="checklist">
+        <li><input type="checkbox" id="p_exc_1" onchange="updateProgress()"><label for="p_exc_1"><strong>Q1:</strong> Write a PL/SQL block that attempts to insert a duplicate emp_id and handles DUP_VAL_ON_INDEX gracefully.</label></li>
+        <li><input type="checkbox" id="p_exc_2" onchange="updateProgress()"><label for="p_exc_2"><strong>Q2:</strong> Create a user-defined exception "e_invalid_dept" raised when dept_id is not in (10,20,30). Include in a block that inserts an employee.</label></li>
+        <li><input type="checkbox" id="p_exc_3" onchange="updateProgress()"><label for="p_exc_3"><strong>Q3:</strong> What is RAISE_APPLICATION_ERROR? When and why would you use it?</label></li>
+      </ul>
+      <div class="toggle-answer" onclick="toggleAns('exc_ans3')">▶ Show Q3 Answer</div>
+      <div class="answer-content" id="exc_ans3">
+        <div class="code-wrap">
+          <div class="code-header"><span class="code-label">RAISE_APPLICATION_ERROR</span></div>
+          <pre><span class="cmt">-- RAISE_APPLICATION_ERROR: Create custom Oracle errors
+-- Error numbers must be between -20001 and -20999</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">IF</span> dept_id <span class="kw">NOT IN</span> (<span class="num">10</span>,<span class="num">20</span>,<span class="num">30</span>) <span class="kw">THEN</span>
+        <span class="fn">RAISE_APPLICATION_ERROR</span>(
+            -<span class="num">20001</span>,
+            <span class="str">'Invalid department ID: '</span> || dept_id
+        );
+    <span class="kw">END IF</span>;
+<span class="kw">END</span>;</pre>
+        </div>
+        <p style="font-size:0.84rem; color:var(--muted); margin-top:0.5rem;">This creates an ORA-20001 error visible to calling applications. Better than user-defined exceptions when the error needs to propagate up to the app layer with a descriptive message.</p>
+      </div>
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="c_exc_1" onchange="updateProgress()"><label for="c_exc_1">Know all named system exceptions and when they fire</label></li>
+      <li><input type="checkbox" id="c_exc_2" onchange="updateProgress()"><label for="c_exc_2">Can create and RAISE user-defined exceptions</label></li>
+      <li><input type="checkbox" id="c_exc_3" onchange="updateProgress()"><label for="c_exc_3">Use SQLCODE, SQLERRM in OTHERS handler</label></li>
+      <li><input type="checkbox" id="c_exc_4" onchange="updateProgress()"><label for="c_exc_4">Know RAISE_APPLICATION_ERROR for custom error codes</label></li>
+    </ul>
+  </div>
+
+  <!-- STORED PROCEDURES -->
+  <div class="section" id="procedures">
+    <div class="section-header">
+      <span class="section-num">3.3</span>
+      <div>
+        <h2>Stored Procedures</h2>
+        <div class="section-sub">Named, reusable PL/SQL programs stored in the database</div>
+      </div>
+    </div>
+
+    <div class="analogy-box">
+      <strong>🔧 Analogy</strong>
+      A stored procedure is like a <strong>saved macro</strong> in the database. Instead of writing the same 50-line PL/SQL block every time, you write it once, save it with a name, and call it with just one line. Like pressing a button on a remote to perform a complex sequence.
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-label">PL/SQL — Stored Procedures (IN, OUT, IN OUT)</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="cmt">-- ─── CREATE a stored procedure ───</span>
+<span class="kw">CREATE OR REPLACE PROCEDURE</span> <span class="fn">give_raise</span> (
+    <span class="var">p_emp_id</span>    <span class="kw">IN</span>     employees.emp_id%<span class="kw">TYPE</span>,    <span class="cmt">-- Input</span>
+    <span class="var">p_pct</span>       <span class="kw">IN</span>     <span class="type">NUMBER</span>,                   <span class="cmt">-- Input (percentage)</span>
+    <span class="var">p_new_sal</span>   <span class="kw">OUT</span>    employees.salary%<span class="kw">TYPE</span>,    <span class="cmt">-- Output (returned)</span>
+    <span class="var">p_status</span>    <span class="kw">OUT</span>    <span class="type">VARCHAR2</span>                  <span class="cmt">-- Output message</span>
+)
+<span class="kw">AS</span>
+    <span class="var">v_curr_sal</span>  employees.salary%<span class="kw">TYPE</span>;
+<span class="kw">BEGIN</span>
+    <span class="kw">SELECT</span> salary <span class="kw">INTO</span> <span class="var">v_curr_sal</span>
+    <span class="kw">FROM</span>   employees
+    <span class="kw">WHERE</span>  emp_id = <span class="var">p_emp_id</span>;
+
+    <span class="var">p_new_sal</span> := <span class="var">v_curr_sal</span> * (<span class="num">1</span> + <span class="var">p_pct</span> / <span class="num">100</span>);
+
+    <span class="kw">UPDATE</span> employees
+    <span class="kw">SET</span>    salary = <span class="var">p_new_sal</span>
+    <span class="kw">WHERE</span>  emp_id = <span class="var">p_emp_id</span>;
+
+    <span class="var">p_status</span> := <span class="str">'SUCCESS: Salary updated to '</span> || <span class="var">p_new_sal</span>;
+    <span class="kw">COMMIT</span>;
+
+<span class="kw">EXCEPTION</span>
+    <span class="kw">WHEN</span> NO_DATA_FOUND <span class="kw">THEN</span>
+        <span class="var">p_status</span> := <span class="str">'ERROR: Employee '</span> || <span class="var">p_emp_id</span> || <span class="str">' not found'</span>;
+    <span class="kw">WHEN</span> OTHERS <span class="kw">THEN</span>
+        <span class="var">p_status</span> := <span class="str">'ERROR: '</span> || <span class="fn">SQLERRM</span>;
+        <span class="kw">ROLLBACK</span>;
+<span class="kw">END</span> give_raise;
+<span class="kw">/</span>
+
+<span class="cmt">-- ─── CALL the procedure ───</span>
+<span class="kw">DECLARE</span>
+    <span class="var">v_new_salary</span>  employees.salary%<span class="kw">TYPE</span>;
+    <span class="var">v_msg</span>         <span class="type">VARCHAR2</span>(<span class="num">200</span>);
+<span class="kw">BEGIN</span>
+    give_raise(
+        p_emp_id  => <span class="num">1</span>,
+        p_pct     => <span class="num">15</span>,          <span class="cmt">-- 15% raise</span>
+        p_new_sal => <span class="var">v_new_salary</span>,
+        p_status  => <span class="var">v_msg</span>
+    );
+    <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="var">v_msg</span>);
+    <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'New Salary: '</span> || <span class="var">v_new_salary</span>);
+<span class="kw">END</span>;
+<span class="kw">/</span>
+
+<span class="cmt">-- Check for compilation errors</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> USER_ERRORS <span class="kw">WHERE</span> NAME = <span class="str">'GIVE_RAISE'</span>;</pre>
+    </div>
+
+    <div class="concept-card">
+      <h3>IN / OUT / IN OUT Parameters</h3>
+      <table>
+        <thead><tr><th>Mode</th><th>Direction</th><th>Can read?</th><th>Can assign?</th></tr></thead>
+        <tbody>
+          <tr><td><code>IN</code></td><td>Caller → Procedure</td><td>✅</td><td>❌ Read-only inside</td></tr>
+          <tr><td><code>OUT</code></td><td>Procedure → Caller</td><td>❌ initially</td><td>✅ Write-only inside</td></tr>
+          <tr><td><code>IN OUT</code></td><td>Both directions</td><td>✅</td><td>✅</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="practice-section">
+      <h4>Practice Questions — Procedures</h4>
+      <ul class="checklist">
+        <li><input type="checkbox" id="p_proc_1" onchange="updateProgress()"><label for="p_proc_1"><strong>Q1:</strong> Write a procedure ADD_EMPLOYEE(name, salary, dept_id) that inserts a new employee and returns the generated emp_id via an OUT parameter.</label></li>
+        <li><input type="checkbox" id="p_proc_2" onchange="updateProgress()"><label for="p_proc_2"><strong>Q2:</strong> Create a procedure TRANSFER_EMPLOYEE(emp_id, new_dept_id) that moves an employee to a new department with validation (dept must exist).</label></li>
+        <li><input type="checkbox" id="p_proc_3" onchange="updateProgress()"><label for="p_proc_3"><strong>Q3:</strong> How do you see a procedure's source code after it's compiled? (Hint: USER_SOURCE)</label></li>
+      </ul>
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="c_proc_1" onchange="updateProgress()"><label for="c_proc_1">Can CREATE OR REPLACE procedures with IN/OUT parameters</label></li>
+      <li><input type="checkbox" id="c_proc_2" onchange="updateProgress()"><label for="c_proc_2">Can call procedures using named notation (param => value)</label></li>
+      <li><input type="checkbox" id="c_proc_3" onchange="updateProgress()"><label for="c_proc_3">Know how to debug using USER_ERRORS</label></li>
+    </ul>
+  </div>
+
+  <!-- FUNCTIONS -->
+  <div class="section" id="functions">
+    <div class="section-header">
+      <span class="section-num">3.4</span>
+      <div>
+        <h2>Functions</h2>
+        <div class="section-sub">Procedures that return a value — usable inside SQL queries</div>
+      </div>
+    </div>
+
+    <div class="concept-card">
+      <h3>Procedure vs Function — Key Differences</h3>
+      <table>
+        <thead><tr><th></th><th>Procedure</th><th>Function</th></tr></thead>
+        <tbody>
+          <tr><td>Returns value?</td><td>❌ (uses OUT params)</td><td>✅ Exactly one value</td></tr>
+          <tr><td>Used in SQL?</td><td>❌ Cannot</td><td>✅ Can use in SELECT</td></tr>
+          <tr><td>RETURN statement</td><td>Optional (exits early)</td><td>Mandatory</td></tr>
+          <tr><td>Called with</td><td>EXEC or BEGIN...END</td><td>In expression or SELECT</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-label">PL/SQL — Functions</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="cmt">-- ─── CREATE a function ───</span>
+<span class="kw">CREATE OR REPLACE FUNCTION</span> <span class="fn">get_annual_salary</span> (
+    <span class="var">p_emp_id</span>  <span class="kw">IN</span>  employees.emp_id%<span class="kw">TYPE</span>
+) <span class="kw">RETURN NUMBER</span>
+<span class="kw">IS</span>
+    <span class="var">v_monthly</span>  employees.salary%<span class="kw">TYPE</span>;
+<span class="kw">BEGIN</span>
+    <span class="kw">SELECT</span> salary <span class="kw">INTO</span> <span class="var">v_monthly</span>
+    <span class="kw">FROM</span>   employees
+    <span class="kw">WHERE</span>  emp_id = <span class="var">p_emp_id</span>;
+
+    <span class="kw">RETURN</span> <span class="var">v_monthly</span> * <span class="num">12</span>;   <span class="cmt">-- MUST return something</span>
+
+<span class="kw">EXCEPTION</span>
+    <span class="kw">WHEN</span> NO_DATA_FOUND <span class="kw">THEN</span>
+        <span class="kw">RETURN</span> <span class="num">0</span>;   <span class="cmt">-- Return 0 if employee not found</span>
+<span class="kw">END</span> get_annual_salary;
+<span class="kw">/</span>
+
+<span class="cmt">-- ─── USE function in SQL query ─── (This is POWERFUL!)</span>
+<span class="kw">SELECT</span> first_name,
+       salary <span class="kw">AS</span> monthly,
+       <span class="fn">get_annual_salary</span>(emp_id) <span class="kw">AS</span> annual
+<span class="kw">FROM</span>   employees;
+
+<span class="cmt">-- ─── USE function in PL/SQL ───</span>
+<span class="kw">DECLARE</span>
+    <span class="var">v_annual</span>  <span class="type">NUMBER</span>;
+<span class="kw">BEGIN</span>
+    <span class="var">v_annual</span> := <span class="fn">get_annual_salary</span>(<span class="num">1</span>);
+    <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'Annual: '</span> || <span class="var">v_annual</span>);
+<span class="kw">END</span>;
+<span class="kw">/</span>
+
+<span class="cmt">-- ─── String utility function ───</span>
+<span class="kw">CREATE OR REPLACE FUNCTION</span> <span class="fn">format_name</span> (
+    <span class="var">p_first</span>  <span class="kw">IN</span>  <span class="type">VARCHAR2</span>,
+    <span class="var">p_last</span>   <span class="kw">IN</span>  <span class="type">VARCHAR2</span>
+) <span class="kw">RETURN VARCHAR2</span>
+<span class="kw">IS</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">RETURN</span> <span class="fn">INITCAP</span>(<span class="var">p_last</span>) || <span class="str">', '</span> || <span class="fn">INITCAP</span>(<span class="var">p_first</span>);
+<span class="kw">END</span>;
+<span class="kw">/</span>
+
+<span class="cmt">-- Use it in a query</span>
+<span class="kw">SELECT</span> <span class="fn">format_name</span>(first_name, last_name) <span class="kw">AS</span> full_name
+<span class="kw">FROM</span>   employees;</pre>
+    </div>
+
+    <div name="practice-section" class="practice-section">
+      <h4>Practice Questions — Functions</h4>
+      <ul class="checklist">
+        <li><input type="checkbox" id="p_fn_1" onchange="updateProgress()"><label for="p_fn_1"><strong>Q1:</strong> Write a function GET_DEPT_HEADCOUNT(dept_id) that returns the number of employees in that department.</label></li>
+        <li><input type="checkbox" id="p_fn_2" onchange="updateProgress()"><label for="p_fn_2"><strong>Q2:</strong> Write a function IS_HIGH_EARNER(emp_id) that returns 'YES' or 'NO' based on whether salary exceeds the company average.</label></li>
+        <li><input type="checkbox" id="p_fn_3" onchange="updateProgress()"><label for="p_fn_3"><strong>Q3:</strong> Call IS_HIGH_EARNER in a SELECT query to label all employees.</label></li>
+      </ul>
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="c_fn_1" onchange="updateProgress()"><label for="c_fn_1">Can create functions with RETURN clause</label></li>
+      <li><input type="checkbox" id="c_fn_2" onchange="updateProgress()"><label for="c_fn_2">Know functions can be called inside SQL SELECT statements</label></li>
+      <li><input type="checkbox" id="c_fn_3" onchange="updateProgress()"><label for="c_fn_3">Understand the key differences between procedures and functions</label></li>
+    </ul>
+  </div>
+
+  <!-- TRIGGERS -->
+  <div class="section" id="triggers">
+    <div class="section-header">
+      <span class="section-num">3.5</span>
+      <div>
+        <h2>Triggers</h2>
+        <div class="section-sub">Automatic code that fires on database events</div>
+      </div>
+    </div>
+
+    <div class="analogy-box">
+      <strong>🔔 Analogy</strong>
+      A trigger is like a <strong>motion sensor light</strong>. You don't turn the light on manually — it automatically turns on when it detects motion (an event). In the database, the "motion" is an INSERT, UPDATE, or DELETE on a table, and the "light" is your PL/SQL code that runs automatically.
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-label">PL/SQL — Triggers</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="cmt">-- ─── 1. BEFORE INSERT trigger: Auto-generate emp_id ───</span>
+<span class="kw">CREATE OR REPLACE TRIGGER</span> <span class="fn">trg_emp_id</span>
+<span class="kw">BEFORE INSERT ON</span> employees
+<span class="kw">FOR EACH ROW</span>                       <span class="cmt">-- Row-level: fires per row</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">IF</span> :<span class="kw">NEW</span>.emp_id <span class="kw">IS NULL THEN</span>
+        <span class="kw">SELECT</span> emp_seq.NEXTVAL   <span class="cmt">-- From a SEQUENCE</span>
+        <span class="kw">INTO</span>   :<span class="kw">NEW</span>.emp_id
+        <span class="kw">FROM</span>   DUAL;
+    <span class="kw">END IF</span>;
+    <span class="cmt">-- :NEW refers to the new row being inserted</span>
+    :<span class="kw">NEW</span>.hire_date := <span class="fn">SYSDATE</span>;   <span class="cmt">-- Auto-set hire date</span>
+<span class="kw">END</span>;
+<span class="kw">/</span>
+
+<span class="cmt">-- ─── 2. AFTER UPDATE trigger: Audit log ───</span>
+<span class="kw">CREATE TABLE</span> salary_audit (
+    audit_id    <span class="type">NUMBER</span>        <span class="kw">GENERATED ALWAYS AS IDENTITY</span>,
+    emp_id      <span class="type">NUMBER</span>,
+    old_salary  <span class="type">NUMBER</span>,
+    new_salary  <span class="type">NUMBER</span>,
+    changed_by  <span class="type">VARCHAR2</span>(<span class="num">50</span>),
+    changed_at  <span class="type">TIMESTAMP</span>     <span class="kw">DEFAULT</span> <span class="fn">SYSTIMESTAMP</span>
+);
+
+<span class="kw">CREATE OR REPLACE TRIGGER</span> <span class="fn">trg_salary_audit</span>
+<span class="kw">AFTER UPDATE OF</span> salary <span class="kw">ON</span> employees
+<span class="kw">FOR EACH ROW</span>
+<span class="kw">WHEN</span> (:<span class="kw">NEW</span>.salary != :<span class="kw">OLD</span>.salary)   <span class="cmt">-- Only if actually changed</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">INSERT INTO</span> salary_audit (emp_id, old_salary, new_salary, changed_by)
+    <span class="kw">VALUES</span> (:<span class="kw">NEW</span>.emp_id, :<span class="kw">OLD</span>.salary, :<span class="kw">NEW</span>.salary, <span class="fn">USER</span>);
+    <span class="cmt">-- :OLD = previous value, :NEW = new value
+    -- USER = current logged-in DB user</span>
+<span class="kw">END</span>;
+<span class="kw">/</span>
+
+<span class="cmt">-- ─── 3. INSTEAD OF trigger (on a VIEW) ───</span>
+<span class="kw">CREATE VIEW</span> emp_dept_view <span class="kw">AS</span>
+    <span class="kw">SELECT</span> e.emp_id, e.first_name, d.dept_name
+    <span class="kw">FROM</span>   employees e <span class="kw">JOIN</span> departments d <span class="kw">ON</span> e.dept_id = d.dept_id;
+
+<span class="kw">CREATE OR REPLACE TRIGGER</span> <span class="fn">trg_instead_emp</span>
+<span class="kw">INSTEAD OF INSERT ON</span> emp_dept_view
+<span class="kw">FOR EACH ROW</span>
+<span class="kw">BEGIN</span>
+    <span class="cmt">-- Redirect INSERT on view to the base table</span>
+    <span class="kw">INSERT INTO</span> employees (emp_id, first_name)
+    <span class="kw">VALUES</span> (:<span class="kw">NEW</span>.emp_id, :<span class="kw">NEW</span>.first_name);
+<span class="kw">END</span>;
+<span class="kw">/</span></pre>
+    </div>
+
+    <div class="concept-card">
+      <h3>Trigger Anatomy Quick Reference</h3>
+      <table>
+        <thead><tr><th>Component</th><th>Options</th></tr></thead>
+        <tbody>
+          <tr><td>Timing</td><td>BEFORE, AFTER, INSTEAD OF</td></tr>
+          <tr><td>Event</td><td>INSERT, UPDATE, DELETE, UPDATE OF column</td></tr>
+          <tr><td>Scope</td><td>FOR EACH ROW (row-level), Statement-level (default)</td></tr>
+          <tr><td>Pseudorecords</td><td>:NEW (new row), :OLD (old row)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div name="practice-section" class="practice-section">
+      <h4>Practice Questions — Triggers</h4>
+      <ul class="checklist">
+        <li><input type="checkbox" id="p_trg_1" onchange="updateProgress()"><label for="p_trg_1"><strong>Q1:</strong> Create a trigger that prevents employees from being deleted if they are a manager (manager_id in departments).</label></li>
+        <li><input type="checkbox" id="p_trg_2" onchange="updateProgress()"><label for="p_trg_2"><strong>Q2:</strong> Create a trigger that automatically uppercases the first_name and last_name on INSERT.</label></li>
+        <li><input type="checkbox" id="p_trg_3" onchange="updateProgress()"><label for="p_trg_3"><strong>Q3:</strong> What is a mutating table error (ORA-04091)? When does it happen? How do you fix it?</label></li>
+      </ul>
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="c_trg_1" onchange="updateProgress()"><label for="c_trg_1">Can write BEFORE/AFTER INSERT/UPDATE/DELETE triggers</label></li>
+      <li><input type="checkbox" id="c_trg_2" onchange="updateProgress()"><label for="c_trg_2">Understand :NEW and :OLD pseudorecords</label></li>
+      <li><input type="checkbox" id="c_trg_3" onchange="updateProgress()"><label for="c_trg_3">Know row-level vs statement-level triggers</label></li>
+      <li><input type="checkbox" id="c_trg_4" onchange="updateProgress()"><label for="c_trg_4">Can write INSTEAD OF triggers for views</label></li>
+    </ul>
+  </div>
+
+  <!-- PACKAGES -->
+  <div class="section" id="packages">
+    <div class="section-header">
+      <span class="section-num">3.6</span>
+      <div>
+        <h2>Packages</h2>
+        <div class="section-sub">Grouping related code — the professional way</div>
+      </div>
+    </div>
+
+    <div class="analogy-box">
+      <strong>📦 Analogy</strong>
+      A package is like a <strong>toolbox</strong>. Instead of having tools (procedures, functions, variables) scattered everywhere, you organize them into themed toolboxes: one for employee operations, one for payroll, one for reporting. The <strong>Package Spec</strong> is the label on the toolbox (what's inside), and the <strong>Package Body</strong> is the actual tools with all their mechanics.
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-label">PL/SQL — Package Spec + Body</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="cmt">-- ─── PACKAGE SPECIFICATION (the "interface") ───
+-- Only PUBLIC items declared here are visible to the outside</span>
+<span class="kw">CREATE OR REPLACE PACKAGE</span> <span class="fn">emp_mgmt</span> <span class="kw">AS</span>
+
+    <span class="cmt">-- Public constants</span>
+    <span class="var">c_min_salary</span>  <span class="kw">CONSTANT</span> <span class="type">NUMBER</span> := <span class="num">30000</span>;
+
+    <span class="cmt">-- Public type declaration</span>
+    <span class="kw">TYPE</span> <span class="type">t_emp_rec</span> <span class="kw">IS RECORD</span> (
+        emp_id   employees.emp_id%<span class="kw">TYPE</span>,
+        name     <span class="type">VARCHAR2</span>(<span class="num">100</span>),
+        salary   employees.salary%<span class="kw">TYPE</span>
+    );
+
+    <span class="cmt">-- Public procedure signatures (no body here)</span>
+    <span class="kw">PROCEDURE</span> hire_employee (
+        <span class="var">p_name</span>    <span class="kw">IN</span>  <span class="type">VARCHAR2</span>,
+        <span class="var">p_salary</span>  <span class="kw">IN</span>  <span class="type">NUMBER</span>,
+        <span class="var">p_dept</span>    <span class="kw">IN</span>  <span class="type">NUMBER</span>,
+        <span class="var">p_emp_id</span>  <span class="kw">OUT NUMBER</span>
+    );
+
+    <span class="kw">FUNCTION</span> get_salary (<span class="var">p_emp_id</span> <span class="kw">IN NUMBER</span>) <span class="kw">RETURN NUMBER</span>;
+
+    <span class="kw">PROCEDURE</span> terminate_employee (<span class="var">p_emp_id</span> <span class="kw">IN NUMBER</span>);
+
+<span class="kw">END</span> emp_mgmt;
+<span class="kw">/</span>
+
+<span class="cmt">-- ─── PACKAGE BODY (the "implementation") ───</span>
+<span class="kw">CREATE OR REPLACE PACKAGE BODY</span> <span class="fn">emp_mgmt</span> <span class="kw">AS</span>
+
+    <span class="cmt">-- Private variable (only accessible within this package)</span>
+    <span class="var">g_last_hire_id</span>  <span class="type">NUMBER</span> := <span class="num">0</span>;
+
+    <span class="cmt">-- Private helper (not declared in spec)</span>
+    <span class="kw">FUNCTION</span> <span class="fn">next_emp_id</span> <span class="kw">RETURN NUMBER</span> <span class="kw">IS</span>
+        <span class="var">v_max</span> <span class="type">NUMBER</span>;
+    <span class="kw">BEGIN</span>
+        <span class="kw">SELECT</span> <span class="fn">NVL</span>(<span class="fn">MAX</span>(emp_id),<span class="num">0</span>)+<span class="num">1</span> <span class="kw">INTO</span> <span class="var">v_max</span> <span class="kw">FROM</span> employees;
+        <span class="kw">RETURN</span> <span class="var">v_max</span>;
+    <span class="kw">END</span>;
+
+    <span class="cmt">-- IMPLEMENT hire_employee</span>
+    <span class="kw">PROCEDURE</span> hire_employee (
+        <span class="var">p_name</span>    <span class="kw">IN</span>  <span class="type">VARCHAR2</span>,
+        <span class="var">p_salary</span>  <span class="kw">IN</span>  <span class="type">NUMBER</span>,
+        <span class="var">p_dept</span>    <span class="kw">IN</span>  <span class="type">NUMBER</span>,
+        <span class="var">p_emp_id</span>  <span class="kw">OUT NUMBER</span>
+    ) <span class="kw">IS</span>
+    <span class="kw">BEGIN</span>
+        <span class="kw">IF</span> <span class="var">p_salary</span> < <span class="var">c_min_salary</span> <span class="kw">THEN</span>
+            <span class="fn">RAISE_APPLICATION_ERROR</span>(-<span class="num">20001</span>, <span class="str">'Salary below minimum!'</span>);
+        <span class="kw">END IF</span>;
+
+        <span class="var">p_emp_id</span> := <span class="fn">next_emp_id</span>();
+        <span class="kw">INSERT INTO</span> employees (emp_id, first_name, salary, dept_id)
+        <span class="kw">VALUES</span> (<span class="var">p_emp_id</span>, <span class="var">p_name</span>, <span class="var">p_salary</span>, <span class="var">p_dept</span>);
+        <span class="var">g_last_hire_id</span> := <span class="var">p_emp_id</span>;
+        <span class="kw">COMMIT</span>;
+    <span class="kw">END</span> hire_employee;
+
+    <span class="cmt">-- IMPLEMENT get_salary</span>
+    <span class="kw">FUNCTION</span> get_salary (<span class="var">p_emp_id</span> <span class="kw">IN NUMBER</span>) <span class="kw">RETURN NUMBER</span> <span class="kw">IS</span>
+        <span class="var">v_sal</span> <span class="type">NUMBER</span>;
+    <span class="kw">BEGIN</span>
+        <span class="kw">SELECT</span> salary <span class="kw">INTO</span> <span class="var">v_sal</span>
+        <span class="kw">FROM</span>   employees <span class="kw">WHERE</span> emp_id = <span class="var">p_emp_id</span>;
+        <span class="kw">RETURN</span> <span class="var">v_sal</span>;
+    <span class="kw">EXCEPTION</span>
+        <span class="kw">WHEN</span> NO_DATA_FOUND <span class="kw">THEN RETURN NULL</span>;
+    <span class="kw">END</span> get_salary;
+
+    <span class="kw">PROCEDURE</span> terminate_employee (<span class="var">p_emp_id</span> <span class="kw">IN NUMBER</span>) <span class="kw">IS</span>
+    <span class="kw">BEGIN</span>
+        <span class="kw">DELETE FROM</span> employees <span class="kw">WHERE</span> emp_id = <span class="var">p_emp_id</span>;
+        <span class="kw">COMMIT</span>;
+    <span class="kw">END</span> terminate_employee;
+
+<span class="kw">END</span> emp_mgmt;
+<span class="kw">/</span>
+
+<span class="cmt">-- ─── USING the package ───</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">DECLARE</span>
+        <span class="var">v_id</span>  <span class="type">NUMBER</span>;
+    <span class="kw">BEGIN</span>
+        emp_mgmt.hire_employee(<span class="str">'Sneha'</span>, <span class="num">75000</span>, <span class="num">10</span>, <span class="var">v_id</span>);
+        <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'Hired. ID = '</span> || <span class="var">v_id</span>);
+        <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'Salary: '</span> || emp_mgmt.get_salary(<span class="var">v_id</span>));
+    <span class="kw">END</span>;
+<span class="kw">END</span>;
+<span class="kw">/</span></pre>
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="c_pkg_1" onchange="updateProgress()"><label for="c_pkg_1">Understand Package Spec (public interface) vs Package Body (implementation)</label></li>
+      <li><input type="checkbox" id="c_pkg_2" onchange="updateProgress()"><label for="c_pkg_2">Can write a complete package with procedures and functions</label></li>
+      <li><input type="checkbox" id="c_pkg_3" onchange="updateProgress()"><label for="c_pkg_3">Know public vs private package members</label></li>
+      <li><input type="checkbox" id="c_pkg_4" onchange="updateProgress()"><label for="c_pkg_4">Can call package methods using package_name.method_name syntax</label></li>
+    </ul>
+  </div>
+
+  <!-- ══════════════════ MODULE 4: EXPERT ══════════════════ -->
+
+  <!-- COLLECTIONS -->
+  <div class="section" id="collections">
+    <div class="section-header">
+      <span class="section-num">4.1</span>
+      <div>
+        <h2>Collections & Records</h2>
+        <div class="section-sub">Arrays and structs in PL/SQL</div>
+      </div>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-label">PL/SQL — Collections</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">DECLARE</span>
+    <span class="cmt">-- ─── 1. VARRAY (fixed max size) ───</span>
+    <span class="kw">TYPE</span> <span class="type">t_skills</span> <span class="kw">IS VARRAY</span>(<span class="num">5</span>) <span class="kw">OF</span> <span class="type">VARCHAR2</span>(<span class="num">50</span>);
+    <span class="var">v_skills</span>  <span class="type">t_skills</span> := <span class="type">t_skills</span>(<span class="str">'SQL'</span>, <span class="str">'PL/SQL'</span>, <span class="str">'Java'</span>);
+
+    <span class="cmt">-- ─── 2. Nested Table (unbounded array) ───</span>
+    <span class="kw">TYPE</span> <span class="type">t_names</span> <span class="kw">IS TABLE OF</span> <span class="type">VARCHAR2</span>(<span class="num">100</span>);
+    <span class="var">v_names</span>   <span class="type">t_names</span> := <span class="type">t_names</span>();  <span class="cmt">-- Empty, extend before use</span>
+
+    <span class="cmt">-- ─── 3. Associative Array (key-value, most flexible) ───</span>
+    <span class="kw">TYPE</span> <span class="type">t_sal_map</span> <span class="kw">IS TABLE OF NUMBER INDEX BY VARCHAR2</span>(<span class="num">50</span>);
+    <span class="var">v_salaries</span>  <span class="type">t_sal_map</span>;
+
+    <span class="cmt">-- ─── 4. Record type ───</span>
+    <span class="kw">TYPE</span> <span class="type">t_emp_info</span> <span class="kw">IS RECORD</span> (
+        emp_id    <span class="type">NUMBER</span>,
+        name      <span class="type">VARCHAR2</span>(<span class="num">100</span>),
+        salary    <span class="type">NUMBER</span>,
+        is_active <span class="type">BOOLEAN</span> := <span class="kw">TRUE</span>
+    );
+    <span class="var">v_emp</span>  <span class="type">t_emp_info</span>;
+
+<span class="kw">BEGIN</span>
+    <span class="cmt">-- Using VARRAY</span>
+    <span class="kw">FOR</span> <span class="var">i</span> <span class="kw">IN</span> <span class="num">1</span>..<span class="var">v_skills</span>.COUNT <span class="kw">LOOP</span>
+        <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'Skill: '</span> || <span class="var">v_skills</span>(<span class="var">i</span>));
+    <span class="kw">END LOOP</span>;
+
+    <span class="cmt">-- Using Nested Table</span>
+    <span class="var">v_names</span>.EXTEND(<span class="num">3</span>);   <span class="cmt">-- Add 3 slots</span>
+    <span class="var">v_names</span>(<span class="num">1</span>) := <span class="str">'Alice'</span>;
+    <span class="var">v_names</span>(<span class="num">2</span>) := <span class="str">'Bob'</span>;
+    <span class="var">v_names</span>(<span class="num">3</span>) := <span class="str">'Carol'</span>;
+
+    <span class="cmt">-- Using Associative Array</span>
+    <span class="var">v_salaries</span>(<span class="str">'Engineering'</span>) := <span class="num">95000</span>;
+    <span class="var">v_salaries</span>(<span class="str">'Finance'</span>)     := <span class="num">85000</span>;
+    <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'Eng: '</span> || <span class="var">v_salaries</span>(<span class="str">'Engineering'</span>));
+
+    <span class="cmt">-- Using Record</span>
+    <span class="var">v_emp</span>.emp_id := <span class="num">1</span>;
+    <span class="var">v_emp</span>.name   := <span class="str">'Arjun'</span>;
+    <span class="var">v_emp</span>.salary := <span class="num">78000</span>;
+    <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="var">v_emp</span>.name || <span class="str">' earns '</span> || <span class="var">v_emp</span>.salary);
+<span class="kw">END</span>;
+<span class="kw">/</span></pre>
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="c_col_1" onchange="updateProgress()"><label for="c_col_1">Know the 3 collection types: VARRAY, Nested Table, Associative Array</label></li>
+      <li><input type="checkbox" id="c_col_2" onchange="updateProgress()"><label for="c_col_2">Can define and use RECORD types</label></li>
+      <li><input type="checkbox" id="c_col_3" onchange="updateProgress()"><label for="c_col_3">Know collection methods: COUNT, EXTEND, DELETE, FIRST, LAST, EXISTS</label></li>
+    </ul>
+  </div>
+
+  <!-- BULK OPERATIONS -->
+  <div class="section" id="bulk">
+    <div class="section-header">
+      <span class="section-num">4.2</span>
+      <div>
+        <h2>Bulk Operations — BULK COLLECT & FORALL</h2>
+        <div class="section-sub">Processing thousands of rows efficiently</div>
+      </div>
+    </div>
+
+    <div class="analogy-box">
+      <strong>🚛 Analogy</strong>
+      Without BULK: Moving furniture one item per trip from floor 5 to a truck — each trip has overhead (elevator call, loading, unloading). With BULK COLLECT/FORALL: Load the entire floor's contents onto a cart, one trip to the truck. Dramatically fewer context switches between PL/SQL and SQL engines.
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-label">PL/SQL — BULK COLLECT & FORALL</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">DECLARE</span>
+    <span class="kw">TYPE</span> <span class="type">t_emp_ids</span>   <span class="kw">IS TABLE OF</span> employees.emp_id%<span class="kw">TYPE</span>;
+    <span class="kw">TYPE</span> <span class="type">t_salaries</span>  <span class="kw">IS TABLE OF</span> employees.salary%<span class="kw">TYPE</span>;
+    <span class="kw">TYPE</span> <span class="type">t_emp_rows</span>  <span class="kw">IS TABLE OF</span> employees%<span class="kw">ROWTYPE</span>;
+
+    <span class="var">v_ids</span>      <span class="type">t_emp_ids</span>;
+    <span class="var">v_sals</span>     <span class="type">t_salaries</span>;
+    <span class="var">v_emps</span>     <span class="type">t_emp_rows</span>;
+
+<span class="kw">BEGIN</span>
+    <span class="cmt">-- BULK COLLECT: Fetch ALL rows at once into a collection</span>
+    <span class="kw">SELECT</span> emp_id, salary
+    <span class="kw">BULK COLLECT INTO</span> <span class="var">v_ids</span>, <span class="var">v_sals</span>
+    <span class="kw">FROM</span>   employees
+    <span class="kw">WHERE</span>  dept_id = <span class="num">10</span>;
+
+    <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'Fetched: '</span> || <span class="var">v_ids</span>.COUNT || <span class="str">' rows'</span>);
+
+    <span class="cmt">-- LIMIT: Don't load ALL rows into memory at once!</span>
+    <span class="kw">SELECT</span> * <span class="kw">BULK COLLECT INTO</span> <span class="var">v_emps</span>
+    <span class="kw">FROM</span>   employees
+    <span class="kw">FETCH FIRST</span> <span class="num">100</span> <span class="kw">ROWS ONLY</span>;  <span class="cmt">-- Or use cursor FETCH LIMIT</span>
+
+    <span class="cmt">-- FORALL: Batch DML (much faster than row-by-row loop!)</span>
+    <span class="cmt">-- Apply 10% raise to all fetched employees in ONE SQL statement</span>
+    <span class="kw">FORALL</span> <span class="var">i</span> <span class="kw">IN</span> <span class="num">1</span>..<span class="var">v_ids</span>.COUNT
+        <span class="kw">UPDATE</span> employees
+        <span class="kw">SET</span>    salary = <span class="var">v_sals</span>(<span class="var">i</span>) * <span class="num">1.10</span>
+        <span class="kw">WHERE</span>  emp_id = <span class="var">v_ids</span>(<span class="var">i</span>);
+
+    <span class="cmt">-- Check how many rows were updated</span>
+    <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'Updated: '</span> || SQL%ROWCOUNT || <span class="str">' rows'</span>);
+    <span class="kw">COMMIT</span>;
+
+<span class="kw">END</span>;
+<span class="kw">/</span></pre>
+    </div>
+
+    <div class="tip-box">
+      <strong>⚡ Performance Impact</strong>
+      FORALL can be 10x–100x faster than a row-by-row loop for large datasets. Every row-by-row loop causes a "context switch" between PL/SQL and SQL engines. FORALL makes one round trip for thousands of rows.
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="c_bulk_1" onchange="updateProgress()"><label for="c_bulk_1">Understand why row-by-row is the "slow-by-slow" approach</label></li>
+      <li><input type="checkbox" id="c_bulk_2" onchange="updateProgress()"><label for="c_bulk_2">Can write BULK COLLECT INTO with collection types</label></li>
+      <li><input type="checkbox" id="c_bulk_3" onchange="updateProgress()"><label for="c_bulk_3">Can use FORALL for batch DML operations</label></li>
+    </ul>
+  </div>
+
+  <!-- DYNAMIC SQL -->
+  <div class="section" id="dynamic">
+    <div class="section-header">
+      <span class="section-num">4.3</span>
+      <div>
+        <h2>Dynamic SQL — EXECUTE IMMEDIATE</h2>
+        <div class="section-sub">Building and running SQL at runtime</div>
+      </div>
+    </div>
+
+    <div class="analogy-box">
+      <strong>🔧 Analogy</strong>
+      Normal SQL is like ordering a pre-set meal from a fixed menu. Dynamic SQL is like giving the chef a handwritten note at runtime saying exactly what ingredients and cooking method you want — you construct the instruction on the fly based on conditions you only know at runtime.
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-label">PL/SQL — Dynamic SQL</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="kw">DECLARE</span>
+    <span class="var">v_table</span>    <span class="type">VARCHAR2</span>(<span class="num">50</span>) := <span class="str">'employees'</span>;
+    <span class="var">v_sql</span>      <span class="type">VARCHAR2</span>(<span class="num">1000</span>);
+    <span class="var">v_count</span>    <span class="type">NUMBER</span>;
+    <span class="var">v_dept</span>     <span class="type">NUMBER</span> := <span class="num">10</span>;
+    <span class="var">v_sal</span>      employees.salary%<span class="kw">TYPE</span>;
+
+<span class="kw">BEGIN</span>
+    <span class="cmt">-- 1. Simple DDL via EXECUTE IMMEDIATE</span>
+    <span class="fn">EXECUTE IMMEDIATE</span> <span class="str">'CREATE TABLE temp_log (msg VARCHAR2(200), ts TIMESTAMP DEFAULT SYSTIMESTAMP)'</span>;
+
+    <span class="cmt">-- 2. Dynamic query with INTO (single row)</span>
+    <span class="var">v_sql</span> := <span class="str">'SELECT COUNT(*) FROM '</span> || <span class="var">v_table</span>;
+    <span class="fn">EXECUTE IMMEDIATE</span> <span class="var">v_sql</span> <span class="kw">INTO</span> <span class="var">v_count</span>;
+    <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'Count: '</span> || <span class="var">v_count</span>);
+
+    <span class="cmt">-- 3. BIND VARIABLES (CRITICAL for security & performance!)
+    -- Never concatenate user input! Use USING instead.</span>
+    <span class="var">v_sql</span> := <span class="str">'SELECT MAX(salary) FROM employees WHERE dept_id = :dept'</span>;
+    <span class="fn">EXECUTE IMMEDIATE</span> <span class="var">v_sql</span> <span class="kw">INTO</span> <span class="var">v_sal</span> <span class="kw">USING</span> <span class="var">v_dept</span>;
+    <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'Max Sal Dept '</span>||<span class="var">v_dept</span>||<span class="str">': '</span>||<span class="var">v_sal</span>);
+
+    <span class="cmt">-- 4. Dynamic DML</span>
+    <span class="fn">EXECUTE IMMEDIATE</span>
+        <span class="str">'UPDATE employees SET salary = salary * :pct WHERE dept_id = :dept'</span>
+        <span class="kw">USING</span> <span class="num">1.05</span>, <span class="var">v_dept</span>;
+
+    <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'Rows updated: '</span> || SQL%ROWCOUNT);
+    <span class="kw">COMMIT</span>;
+
+<span class="kw">EXCEPTION</span>
+    <span class="kw">WHEN OTHERS THEN</span>
+        <span class="fn">DBMS_OUTPUT.PUT_LINE</span>(<span class="str">'Error: '</span> || <span class="fn">SQLERRM</span>);
+        <span class="kw">ROLLBACK</span>;
+<span class="kw">END</span>;
+<span class="kw">/</span></pre>
+    </div>
+
+    <div class="warn-box">
+      <strong>🚨 Security Critical: SQL Injection</strong>
+      NEVER build dynamic SQL by concatenating user input like this: <code style="font-family:'JetBrains Mono',monospace; color:var(--accent3);">'WHERE name = ''' || user_input || ''''</code>. This opens your database to SQL injection attacks. ALWAYS use bind variables with <code style="font-family:'JetBrains Mono',monospace; color:var(--accent2);">:placeholder</code> and USING clause.
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="c_dyn_1" onchange="updateProgress()"><label for="c_dyn_1">Can use EXECUTE IMMEDIATE for DDL and DML</label></li>
+      <li><input type="checkbox" id="c_dyn_2" onchange="updateProgress()"><label for="c_dyn_2">Always use bind variables (USING clause) — never concatenate</label></li>
+      <li><input type="checkbox" id="c_dyn_3" onchange="updateProgress()"><label for="c_dyn_3">Know when dynamic SQL is appropriate vs static SQL</label></li>
+    </ul>
+  </div>
+
+  <!-- PERFORMANCE TUNING -->
+  <div class="section" id="performance">
+    <div class="section-header">
+      <span class="section-num">4.4</span>
+      <div>
+        <h2>Performance Optimization</h2>
+        <div class="section-sub">Writing fast PL/SQL — think at scale</div>
+      </div>
+    </div>
+
+    <div class="concept-card">
+      <h3>The Golden Rules of PL/SQL Performance</h3>
+      <ul>
+        <li>🔴 <strong>Rule 1:</strong> Minimize context switches between SQL and PL/SQL engines — use BULK COLLECT and FORALL</li>
+        <li>🟡 <strong>Rule 2:</strong> Write efficient SQL — indexes, avoid full table scans on large tables</li>
+        <li>🟢 <strong>Rule 3:</strong> Never do row-by-row what SQL can do set-based in one statement</li>
+        <li>🔵 <strong>Rule 4:</strong> Use bind variables — avoid hard parsing repeated SQL</li>
+        <li>🟣 <strong>Rule 5:</strong> Limit COMMIT frequency — committing inside loops is extremely slow</li>
+      </ul>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header"><span class="code-label">PL/SQL — Performance Patterns</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><span class="cmt">-- ❌ SLOW: Row-by-row update (1000 employees = 1000 round trips!)</span>
+<span class="kw">FOR</span> <span class="var">r</span> <span class="kw">IN</span> (<span class="kw">SELECT</span> emp_id <span class="kw">FROM</span> employees <span class="kw">WHERE</span> dept_id=<span class="num">10</span>) <span class="kw">LOOP</span>
+    <span class="kw">UPDATE</span> employees <span class="kw">SET</span> salary=salary*<span class="num">1.1</span> <span class="kw">WHERE</span> emp_id=<span class="var">r</span>.emp_id;
+<span class="kw">END LOOP</span>;
+<span class="kw">COMMIT</span>;
+
+<span class="cmt">-- ✅ FAST: Single SQL statement (1 round trip!)</span>
+<span class="kw">UPDATE</span> employees <span class="kw">SET</span> salary = salary * <span class="num">1.1</span> <span class="kw">WHERE</span> dept_id = <span class="num">10</span>;
+<span class="kw">COMMIT</span>;
+
+<span class="cmt">-- ❌ SLOW: COMMIT inside loop</span>
+<span class="kw">FOR</span> <span class="var">i</span> <span class="kw">IN</span> <span class="num">1</span>..<span class="num">10000</span> <span class="kw">LOOP</span>
+    <span class="kw">INSERT INTO</span> log_table <span class="kw">VALUES</span>(<span class="var">i</span>);
+    <span class="kw">COMMIT</span>;   <span class="cmt">-- 10000 COMMITS! Very slow.</span>
+<span class="kw">END LOOP</span>;
+
+<span class="cmt">-- ✅ FAST: Single COMMIT after all inserts</span>
+<span class="kw">DECLARE</span>
+    <span class="kw">TYPE</span> <span class="type">t_nums</span> <span class="kw">IS TABLE OF NUMBER</span>;
+    <span class="var">v_nums</span> <span class="type">t_nums</span> := <span class="type">t_nums</span>();
+<span class="kw">BEGIN</span>
+    <span class="var">v_nums</span>.EXTEND(<span class="num">10000</span>);
+    <span class="kw">FOR</span> <span class="var">i</span> <span class="kw">IN</span> <span class="num">1</span>..<span class="num">10000</span> <span class="kw">LOOP</span>
+        <span class="var">v_nums</span>(<span class="var">i</span>) := <span class="var">i</span>;
+    <span class="kw">END LOOP</span>;
+    <span class="kw">FORALL</span> <span class="var">i</span> <span class="kw">IN</span> <span class="num">1</span>..<span class="var">v_nums</span>.COUNT
+        <span class="kw">INSERT INTO</span> log_table <span class="kw">VALUES</span>(<span class="var">v_nums</span>(<span class="var">i</span>));
+    <span class="kw">COMMIT</span>;  <span class="cmt">-- 1 COMMIT</span>
+<span class="kw">END</span>;
+
+<span class="cmt">-- Checking indexes (explain plan)</span>
+<span class="kw">EXPLAIN PLAN FOR</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> employees <span class="kw">WHERE</span> salary > <span class="num">80000</span>;
+
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> TABLE(<span class="fn">DBMS_XPLAN.DISPLAY</span>);</pre>
+    </div>
+
+    <div class="concept-card">
+      <h3>Useful Performance Views</h3>
+      <table>
+        <thead><tr><th>View</th><th>Shows</th></tr></thead>
+        <tbody>
+          <tr><td><code>V$SQL</code></td><td>Cached SQL statements, execution counts, elapsed time</td></tr>
+          <tr><td><code>V$SESSION</code></td><td>Active sessions, current SQL being executed</td></tr>
+          <tr><td><code>USER_SEGMENTS</code></td><td>Space used by tables and indexes</td></tr>
+          <tr><td><code>USER_INDEXES</code></td><td>Indexes on your tables</td></tr>
+          <tr><td><code>DBMS_PROFILER</code></td><td>Line-by-line timing of PL/SQL execution</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ul class="checklist">
+      <li><input type="checkbox" id="c_perf_1" onchange="updateProgress()"><label for="c_perf_1">Know the 5 golden rules of PL/SQL performance</label></li>
+      <li><input type="checkbox" id="c_perf_2" onchange="updateProgress()"><label for="c_perf_2">Can use EXPLAIN PLAN to analyze query execution</label></li>
+      <li><input type="checkbox" id="c_perf_3" onchange="updateProgress()"><label for="c_perf_3">Understand when to use set-based SQL vs procedural code</label></li>
+    </ul>
+  </div>
+
+  <!-- ══════════════════ INTERVIEW PREP ══════════════════ -->
+  <div class="section" id="interview-prep">
+    <div class="section-header">
+      <span class="section-num">INTERVIEW</span>
+      <div>
+        <h2>Interview Preparation</h2>
+        <div class="section-sub">Top 20 questions asked in Oracle/PL/SQL interviews</div>
+      </div>
+    </div>
+
+    <div class="interview-card">
+      <h4><span class="interview-badge">Interview Q</span> Q1 — Frequently Asked</h4>
+      <p style="font-size:0.88rem;">"Explain the difference between a stored procedure and a function."</p>
+      <div class="toggle-answer" onclick="toggleAns('iq1')">▶ Show Answer</div>
+      <div class="answer-content" id="iq1" style="font-size:0.86rem; color:var(--text); line-height:1.7;">
+        A function <strong>must return exactly one value</strong> and can be called inside SQL statements (SELECT, WHERE). A procedure does not have to return a value (uses OUT parameters instead) and cannot be used in SQL expressions. Use functions for computations, procedures for processes/business logic that perform DML.
+      </div>
+    </div>
+
+    <div class="interview-card">
+      <h4><span class="interview-badge">Interview Q</span> Q2</h4>
+      <p style="font-size:0.88rem;">"What is a cursor and why do we need it? What are cursor attributes?"</p>
+      <div class="toggle-answer" onclick="toggleAns('iq2')">▶ Show Answer</div>
+      <div class="answer-content" id="iq2" style="font-size:0.86rem; color:var(--text); line-height:1.7;">
+        A cursor is a pointer to the result set of a SQL query. We need it because PL/SQL's SELECT INTO only works for single-row results. For multi-row results, a cursor lets us iterate one row at a time.
+        Cursor attributes: <strong>%FOUND</strong> (last FETCH returned a row), <strong>%NOTFOUND</strong> (no more rows), <strong>%ROWCOUNT</strong> (rows fetched so far), <strong>%ISOPEN</strong> (cursor is open).
+      </div>
+    </div>
+
+    <div class="interview-card">
+      <h4><span class="interview-badge">Interview Q</span> Q3</h4>
+      <p style="font-size:0.88rem;">"What are the types of triggers? When would you NOT use a trigger?"</p>
+      <div class="toggle-answer" onclick="toggleAns('iq3')">▶ Show Answer</div>
+      <div class="answer-content" id="iq3" style="font-size:0.86rem; color:var(--text); line-height:1.7;">
+        Types: BEFORE/AFTER × INSERT/UPDATE/DELETE (row-level or statement-level), INSTEAD OF (on views), DDL triggers, Database event triggers (LOGON, STARTUP, etc.).<br/><br/>
+        Avoid triggers for: complex business logic (use procedures instead), operations that could cause cascading triggers (mutating table errors), logic that needs to be testable independently, or when they would make debugging difficult.
+      </div>
+    </div>
+
+    <div class="interview-card">
+      <h4><span class="interview-badge">Interview Q</span> Q4</h4>
+      <p style="font-size:0.88rem;">"Explain BULK COLLECT and FORALL. Give a real use case."</p>
+      <div class="toggle-answer" onclick="toggleAns('iq4')">▶ Show Answer</div>
+      <div class="answer-content" id="iq4" style="font-size:0.86rem; color:var(--text); line-height:1.7;">
+        BULK COLLECT retrieves multiple rows into a collection in a single round trip from SQL to PL/SQL engine. FORALL sends a batch DML operation (all array elements) in a single round trip from PL/SQL to SQL engine.<br/><br/>
+        Use case: Year-end salary processing — BULK COLLECT all 50,000 employees, apply tiered bonus logic in PL/SQL, then FORALL UPDATE back to database. Instead of 50,000 round trips, you get 2 (one BULK COLLECT, one FORALL UPDATE).
+      </div>
+    </div>
+
+    <div class="interview-card">
+      <h4><span class="interview-badge">Interview Q</span> Q5</h4>
+      <p style="font-size:0.88rem;">"What is the difference between TRUNCATE and DELETE? Can you ROLLBACK a TRUNCATE?"</p>
+      <div class="toggle-answer" onclick="toggleAns('iq5')">▶ Show Answer</div>
+      <div class="answer-content" id="iq5" style="font-size:0.86rem; color:var(--text); line-height:1.7;">
+        DELETE is DML — it removes rows one at a time, generates undo logs, can have a WHERE clause, fires triggers, and can be ROLLBACKed.<br/>
+        TRUNCATE is DDL — it deallocates all data pages, is much faster, cannot have WHERE clause, does not fire row-level triggers, and auto-COMMITs (cannot be rolled back). TRUNCATE also resets the high-water mark.
+      </div>
+    </div>
+
+    <hr class="fancy"/>
+
+    <div class="concept-card">
+      <h3>Top Interview Topics Checklist</h3>
+      <ul class="checklist">
+        <li><input type="checkbox" id="iv_1" onchange="updateProgress()"><label for="iv_1">Difference between SQL and PL/SQL</label></li>
+        <li><input type="checkbox" id="iv_2" onchange="updateProgress()"><label for="iv_2">Procedure vs Function differences</label></li>
+        <li><input type="checkbox" id="iv_3" onchange="updateProgress()"><label for="iv_3">Implicit vs Explicit Cursors</label></li>
+        <li><input type="checkbox" id="iv_4" onchange="updateProgress()"><label for="iv_4">INNER JOIN vs OUTER JOIN</label></li>
+        <li><input type="checkbox" id="iv_5" onchange="updateProgress()"><label for="iv_5">WHERE vs HAVING</label></li>
+        <li><input type="checkbox" id="iv_6" onchange="updateProgress()"><label for="iv_6">DELETE vs TRUNCATE vs DROP</label></li>
+        <li><input type="checkbox" id="iv_7" onchange="updateProgress()"><label for="iv_7">Exception types: predefined, user-defined, OTHERS</label></li>
+        <li><input type="checkbox" id="iv_8" onchange="updateProgress()"><label for="iv_8">Package Spec vs Package Body</label></li>
+        <li><input type="checkbox" id="iv_9" onchange="updateProgress()"><label for="iv_9">BULK COLLECT and FORALL use case</label></li>
+        <li><input type="checkbox" id="iv_10" onchange="updateProgress()"><label for="iv_10">Trigger types and WHEN to avoid them</label></li>
+        <li><input type="checkbox" id="iv_11" onchange="updateProgress()"><label for="iv_11">What is SQL Injection and how to prevent it</label></li>
+        <li><input type="checkbox" id="iv_12" onchange="updateProgress()"><label for="iv_12">%TYPE vs %ROWTYPE and why they matter</label></li>
+        <li><input type="checkbox" id="iv_13" onchange="updateProgress()"><label for="iv_13">SAVEPOINT and nested transactions</label></li>
+        <li><input type="checkbox" id="iv_14" onchange="updateProgress()"><label for="iv_14">What is an index? When does it help / hurt?</label></li>
+        <li><input type="checkbox" id="iv_15" onchange="updateProgress()"><label for="iv_15">ROWNUM vs ROW_NUMBER() — pagination difference</label></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ══════════════════ FINAL PROJECT ══════════════════ -->
+  <div class="section" id="final-project">
+    <div class="section-header">
+      <span class="section-num">CAPSTONE</span>
+      <div>
+        <h2>Final Project</h2>
+        <div class="section-sub">Apply everything you've learned in one real-world system</div>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <h3>🏦 Banking Transaction Management System</h3>
+      <p style="font-size:0.9rem; color:var(--muted); margin-bottom:1.2rem; line-height:1.8;">
+        Build a complete bank account management system using PL/SQL. This project covers every concept from the course in a real-world scenario.
+      </p>
+
+      <div style="margin-bottom:1.5rem;">
+        <h4 style="font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; margin-bottom:0.8rem; color:var(--accent2);">Schema to Create:</h4>
+        <div class="code-wrap">
+          <div class="code-header"><span class="code-label">SQL — Schema</span></div>
+          <pre><span class="kw">CREATE TABLE</span> customers (
+    customer_id  <span class="type">NUMBER</span>        <span class="kw">PRIMARY KEY</span>,
+    full_name    <span class="type">VARCHAR2</span>(<span class="num">100</span>) <span class="kw">NOT NULL</span>,
+    email        <span class="type">VARCHAR2</span>(<span class="num">150</span>) <span class="kw">UNIQUE</span>,
+    phone        <span class="type">VARCHAR2</span>(<span class="num">15</span>),
+    created_at   <span class="type">DATE</span>          <span class="kw">DEFAULT</span> <span class="fn">SYSDATE</span>
+);
+
+<span class="kw">CREATE TABLE</span> accounts (
+    account_id   <span class="type">NUMBER</span>        <span class="kw">PRIMARY KEY</span>,
+    customer_id  <span class="type">NUMBER</span>        <span class="kw">REFERENCES</span> customers,
+    account_type <span class="type">VARCHAR2</span>(<span class="num">10</span>)  <span class="kw">CHECK</span>(account_type <span class="kw">IN</span>(<span class="str">'SAVINGS'</span>,<span class="str">'CURRENT'</span>)),
+    balance      <span class="type">NUMBER</span>(<span class="num">15</span>,<span class="num">2</span>)  <span class="kw">DEFAULT</span> <span class="num">0</span>,
+    status       <span class="type">VARCHAR2</span>(<span class="num">10</span>)  <span class="kw">DEFAULT</span> <span class="str">'ACTIVE'</span>,
+    opened_date  <span class="type">DATE</span>          <span class="kw">DEFAULT</span> <span class="fn">SYSDATE</span>
+);
+
+<span class="kw">CREATE TABLE</span> transactions (
+    txn_id       <span class="type">NUMBER</span>        <span class="kw">PRIMARY KEY</span>,
+    account_id   <span class="type">NUMBER</span>        <span class="kw">REFERENCES</span> accounts,
+    txn_type     <span class="type">VARCHAR2</span>(<span class="num">10</span>)  <span class="kw">CHECK</span>(txn_type <span class="kw">IN</span>(<span class="str">'DEPOSIT'</span>,<span class="str">'WITHDRAW'</span>,<span class="str">'TRANSFER'</span>)),
+    amount       <span class="type">NUMBER</span>(<span class="num">15</span>,<span class="num">2</span>),
+    balance_after <span class="type">NUMBER</span>(<span class="num">15</span>,<span class="num">2</span>),
+    description  <span class="type">VARCHAR2</span>(<span class="num">200</span>),
+    txn_date     <span class="type">TIMESTAMP</span>     <span class="kw">DEFAULT</span> <span class="fn">SYSTIMESTAMP</span>
+);</pre>
+        </div>
+      </div>
+
+      <div style="margin-bottom:1.2rem;">
+        <h4 style="font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; margin-bottom:0.8rem; color:var(--accent2);">What to Build (Milestones):</h4>
+        <ul class="checklist">
+          <li><input type="checkbox" id="fp_1" onchange="updateProgress()"><label for="fp_1"><strong>Milestone 1:</strong> Create schema, populate with 10 customers, 15 accounts, 30+ transactions using INSERT statements.</label></li>
+          <li><input type="checkbox" id="fp_2" onchange="updateProgress()"><label for="fp_2"><strong>Milestone 2:</strong> Write a PACKAGE <code style="font-family:'JetBrains Mono',monospace; color:var(--accent2);">bank_ops</code> with procedures: OPEN_ACCOUNT, DEPOSIT, WITHDRAW, TRANSFER_FUNDS, CLOSE_ACCOUNT.</label></li>
+          <li><input type="checkbox" id="fp_3" onchange="updateProgress()"><label for="fp_3"><strong>Milestone 3:</strong> WITHDRAW must raise a user-defined exception if balance is insufficient. TRANSFER must be atomic (both debit and credit, or neither).</label></li>
+          <li><input type="checkbox" id="fp_4" onchange="updateProgress()"><label for="fp_4"><strong>Milestone 4:</strong> Create a TRIGGER that logs every account status change to an ACCOUNT_AUDIT table.</label></li>
+          <li><input type="checkbox" id="fp_5" onchange="updateProgress()"><label for="fp_5"><strong>Milestone 5:</strong> Write a FUNCTION GET_ACCOUNT_SUMMARY(account_id) that returns a formatted string: "ACC-001 | SAVINGS | Balance: ₹45,000".</label></li>
+          <li><input type="checkbox" id="fp_6" onchange="updateProgress()"><label for="fp_6"><strong>Milestone 6:</strong> Write a stored procedure GENERATE_MONTHLY_STATEMENT using BULK COLLECT to fetch all transactions for an account in a given month and print them.</label></li>
+          <li><input type="checkbox" id="fp_7" onchange="updateProgress()"><label for="fp_7"><strong>Milestone 7:</strong> Write an SQL report query: "Top 5 customers by total deposits in the last 30 days" using JOINs, GROUP BY, HAVING, subqueries.</label></li>
+          <li><input type="checkbox" id="fp_8" onchange="updateProgress()"><label for="fp_8"><strong>BONUS:</strong> Add interest calculation — a procedure that runs monthly and applies 4% per annum to all SAVINGS accounts using FORALL.</label></li>
+        </ul>
+      </div>
+
+      <div class="tip-box">
+        <strong>💡 How to Approach the Project</strong>
+        Don't start coding immediately. First: (1) Draw the ERD on paper. (2) List all business rules. (3) Design the package spec first (just the signatures). (4) Write test cases BEFORE implementation. (5) Implement one procedure at a time, test, then move on. This is how real developers think.
+      </div>
+    </div>
+
+    <ul class="checklist" style="margin-top:1.5rem;">
+      <li><input type="checkbox" id="fin_1" onchange="updateProgress()"><label for="fin_1">Completed the full Banking System project</label></li>
+      <li><input type="checkbox" id="fin_2" onchange="updateProgress()"><label for="fin_2">Code reviewed and all edge cases handled</label></li>
+      <li><input type="checkbox" id="fin_3" onchange="updateProgress()"><label for="fin_3">Can explain every line of your code confidently</label></li>
+      <li><input type="checkbox" id="fin_4" onchange="updateProgress()"><label for="fin_4">Ready to demo in a job interview</label></li>
+    </ul>
+  </div>
+
+  <!-- CONGRATULATIONS -->
+  <div style="text-align:center; padding:3rem 0; border-top:1px solid var(--border);">
+    <div style="font-size:2.5rem; margin-bottom:1rem;">🏆</div>
+    <h2 style="font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; color:var(--accent); margin-bottom:0.5rem;">You Did It.</h2>
+    <p style="color:var(--muted); max-width:500px; margin:0 auto; font-size:0.9rem; line-height:1.8;">
+      Completing this curriculum means you've gone from zero to covering every concept a PL/SQL developer uses on the job. Keep building, keep practicing, and never stop asking "why does this work this way?" — that's what separates good developers from great ones.
+    </p>
+    <div style="margin-top:1.5rem; display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+      <span class="chip chip-gold">SQL Master</span>
+      <span class="chip chip-cyan">PL/SQL Developer</span>
+      <span class="chip chip-purple">Package Architect</span>
+      <span class="chip chip-green">Performance Aware</span>
+      <span class="chip chip-red">Interview Ready</span>
+    </div>
+  </div>
+
+</main>
+
+<!-- ═══════════════════════ SCRIPTS ═══════════════════════ -->
+<script>
+  // ── Progress Tracking ──
+  function updateProgress() {
+    const allBoxes = document.querySelectorAll('input[type="checkbox"]');
+    const checked  = document.querySelectorAll('input[type="checkbox"]:checked');
+    const pct      = Math.round((checked.length / allBoxes.length) * 100);
+    document.getElementById('pct').textContent  = pct + '%';
+    document.getElementById('pbar').style.width = pct + '%';
+    updateNavDots();
+    saveState();
+  }
+
+  function updateNavDots() {
+    // Mark nav items as done when their section's checkboxes are all checked
+    document.querySelectorAll('.nav-item').forEach(item => {
+      const href = item.getAttribute('href');
+      if (!href) return;
+      const id = href.replace('#','');
+      const section = document.getElementById(id);
+      if (!section) return;
+      const boxes = section.querySelectorAll('input[type="checkbox"]');
+      if (boxes.length === 0) return;
+      const allDone = [...boxes].every(b => b.checked);
+      item.classList.toggle('done', allDone);
+      item.classList.toggle('active', !allDone && boxes.length > 0 && [...boxes].some(b => b.checked));
+    });
+  }
+
+  // ── Persistence (localStorage) ──
+  function saveState() {
+    const state = {};
+    document.querySelectorAll('input[type="checkbox"]').forEach(b => {
+      state[b.id] = b.checked;
+    });
+    localStorage.setItem('plsql_progress', JSON.stringify(state));
+  }
+
+  function loadState() {
+    const raw = localStorage.getItem('plsql_progress');
+    if (!raw) return;
+    try {
+      const state = JSON.parse(raw);
+      document.querySelectorAll('input[type="checkbox"]').forEach(b => {
+        if (state[b.id] !== undefined) b.checked = state[b.id];
+      });
+    } catch(e) {}
+    updateProgress();
+  }
+
+  // ── Toggle Answers ──
+  function toggleAns(id) {
+    const el  = document.getElementById(id);
+    const btn = el.previousElementSibling;
+    el.classList.toggle('open');
+    btn.textContent = el.classList.contains('open')
+      ? '▼ Hide Answer'
+      : '▶ Show Answer';
+  }
+
+  // ── Copy Code ──
+  function copyCode(btn) {
+    const pre = btn.closest('.code-wrap').querySelector('pre');
+    const text = pre.innerText || pre.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'copied!';
+      setTimeout(() => btn.textContent = 'copy', 1500);
+    });
+  }
+
+  // ── Sidebar Toggle (mobile) ──
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+  }
+
+  // ── Scroll to Top ──
+  window.addEventListener('scroll', () => {
+    const btn = document.getElementById('scrolltop');
+    btn.style.display = window.scrollY > 400 ? 'flex' : 'none';
+  });
+
+  // ── Active Nav on Scroll ──
+  const sections = document.querySelectorAll('[id]');
+  const navLinks = document.querySelectorAll('.nav-item[href]');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(sec => {
+      if (window.scrollY >= sec.offsetTop - 120) current = sec.id;
+    });
+    navLinks.forEach(link => {
+      const href = link.getAttribute('href').replace('#','');
+      const box = link.closest('[id]');
+      link.classList.toggle('active', href === current);
+    });
+  });
+
+  // ── Close sidebar on outside click (mobile) ──
+  document.addEventListener('click', (e) => {
+    const sidebar = document.getElementById('sidebar');
+    const toggle  = document.getElementById('menu-toggle');
+    if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
+      closeSidebar();
+    }
+  });
+
+  // ── Init ──
+  window.addEventListener('DOMContentLoaded', loadState);
+</script>
+</body>
+</html>
